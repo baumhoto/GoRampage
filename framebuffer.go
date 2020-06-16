@@ -36,14 +36,15 @@ func (fb *FrameBuffer) SetColorAt(x int, y int, c color.Color) {
 
 // ColorAt retrieves the Color for a pixel at x, y in the FrameBuffer
 func (fb FrameBuffer) ColorAt(x int, y int) color.Color {
-	return fb.pixels[y*fb.width+x]
+	c := fb.pixels[y*fb.width+x]
+	return c
 }
 
 // Fill draws an Rect with Color c in the FrameBuffer
 func (fb *FrameBuffer) Fill(rect Rect, c color.Color) {
 	for i := rect.min.y; i < rect.max.y; i++ {
 		for j := rect.min.x; j < rect.max.x; j++ {
-			fb.SetColorAt(int(i), int(j), c)
+			fb.SetColorAt(int(j), int(i), c)
 		}
 	}
 }
@@ -63,7 +64,12 @@ func (fb FrameBuffer) ToImageReader() io.Reader {
 		}
 	}
 
+	//outputFile, _ := os.Create("test.png")
+	//png.Encode(outputFile, img)
+	//outputFile.Close()
+
 	var buf bytes.Buffer
+
 	err := png.Encode(&buf, img)
 	if err != nil {
 		fmt.Printf("Encode error")

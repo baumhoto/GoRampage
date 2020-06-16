@@ -13,15 +13,30 @@ type Renderer struct {
 
 // NewRenderer creates a new instance of a Renderer
 func NewRenderer(width int, height int) Renderer {
-	fb := NewFrameBuffer(width, height, white)
+	fb := NewFrameBuffer(width, height, black)
 	return Renderer{fb}
 }
 
 // draw renders the world into the window
 func (r *Renderer) draw(world World, window draw.Window) {
 	_, height := window.Size()
-	scale := float64(height) / world.size.y
+	scale := float64(height) / float64(world.worldmap.Height)
 
+	// Draw map
+	for y := 0; y < world.worldmap.Height; y++ {
+		for x := 0; x < world.worldmap.Width; x++ {
+			if world.worldmap.GetTile(x, y).isWall() {
+				min := Vector{float64(x), float64(y)}
+				min.Multiply(scale)
+				max := Vector{float64(x + 1), float64(y + 1)}
+				max.Multiply(scale)
+				rect := Rect{min, max}
+				r.frameBuffer.Fill(rect, white)
+			}
+		}
+	}
+
+	// Draw player
 	rect := world.player.rect()
 	rect.min.Multiply(scale)
 	rect.max.Multiply(scale)

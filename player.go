@@ -2,6 +2,7 @@ package main
 
 // Player is a container for a Player
 type Player struct {
+	speed    float64
 	radius   float64
 	position Vector
 	velocity Vector
@@ -9,7 +10,7 @@ type Player struct {
 
 // NewPlayer creates a new Player
 func NewPlayer(position Vector) Player {
-	return Player{0.5, position, Vector{0.05, 0.05}}
+	return Player{1.5, 0.5, position, Vector{0, 0}}
 }
 
 // rect return the player position as Rect
