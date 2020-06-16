@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"image/color"
 
 	"github.com/gonutz/prototype/draw"
 )
@@ -14,7 +13,7 @@ type Renderer struct {
 
 // NewRenderer creates a new instance of a Renderer
 func NewRenderer(width int, height int) Renderer {
-	fb := NewFrameBuffer(width, height, color.White)
+	fb := NewFrameBuffer(width, height, white)
 	return Renderer{fb}
 }
 
@@ -26,7 +25,7 @@ func (r *Renderer) draw(world World, window draw.Window) {
 	rect := world.player.rect()
 	rect.min.Multiply(scale)
 	rect.max.Multiply(scale)
-	r.frameBuffer.Fill(rect, color.Black)
+	r.frameBuffer.Fill(rect, blue)
 
 	err := window.DrawImageReader(r.frameBuffer.ToImageReader())
 	if err != nil {
