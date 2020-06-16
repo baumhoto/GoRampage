@@ -7,12 +7,10 @@ import (
 )
 
 var world World
-var renderer Renderer
 var lastRenderFinishedTime time.Time
 
 func main() {
 	world = NewWorld(Vector{8, 8})
-	renderer = Renderer{}
 	draw.RunWindow("Title", 640, 640, update)
 }
 
@@ -29,5 +27,6 @@ func update(window draw.Window) {
 	world.update(lastFrameTime)
 	lastRenderFinishedTime = time.Now()
 
+	renderer := NewRenderer(640, 640)
 	renderer.draw(world, window)
 }
