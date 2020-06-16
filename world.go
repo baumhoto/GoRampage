@@ -16,9 +16,8 @@ func NewWorld(size Vector) World {
 }
 
 // update updates the World
-func (w *World) update(timeStep int64) {
-	velocity := MultiplyVector(w.player.velocity, float64(timeStep))
-	w.player.position = AddVectors(w.player.position, velocity)
+func (w *World) update() {
+	w.player.position.Add(w.player.velocity)
 
 	w.player.position.x = math.Mod(w.player.position.x, w.size.x)
 	w.player.position.y = math.Mod(w.player.position.y, w.size.y)

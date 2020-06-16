@@ -15,18 +15,7 @@ func main() {
 }
 
 func update(window draw.Window) {
-	// if renderer.window == nil {
-	// 	renderer.setWindow(window)
-	// }
-	var lastFrameTime int64 = 1
-	// if !lastRenderFinishedTime.IsZero() {
-	// 	now := time.Now()
-	// 	elapsed := now.Sub(lastRenderFinishedTime)
-	// 	lastFrameTime = elapsed.Milliseconds()
-	// }
-	world.update(lastFrameTime)
-	lastRenderFinishedTime = time.Now()
-
+	world.update()
 	renderer := NewRenderer(640, 640)
 	renderer.draw(world, window)
 }

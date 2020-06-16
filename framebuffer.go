@@ -9,12 +9,15 @@ import (
 	"io"
 )
 
+// FrameBuffer stores the color for each pixel of the buffer
 type FrameBuffer struct {
 	pixels []color.Color
 	width  int
 	height int
 }
 
+// NewFrameBuffer creates a new FrameBuffer of given size with
+// background-color c
 func NewFrameBuffer(width int, height int, c color.Color) FrameBuffer {
 	pixels := make([]color.Color, width*height)
 	for index := range pixels {
@@ -23,16 +26,20 @@ func NewFrameBuffer(width int, height int, c color.Color) FrameBuffer {
 	return FrameBuffer{pixels, width, height}
 }
 
+// SetColorAt sets the color for the pixel at locaton x, y to c
+// in the Framebuffer
 func (fb *FrameBuffer) SetColorAt(x int, y int, c color.Color) {
 	if x >= 0 && y >= 0 && x < fb.width && y < fb.height {
 		fb.pixels[y*fb.width+x] = c
 	}
 }
 
+// ColorAt retrieves the Color for a pixel at x, y in the FrameBuffer
 func (fb FrameBuffer) ColorAt(x int, y int) color.Color {
 	return fb.pixels[y*fb.width+x]
 }
 
+// Fill draws an Rect with Color c in the FrameBuffer
 func (fb *FrameBuffer) Fill(rect Rect, c color.Color) {
 	for i := rect.min.y; i < rect.max.y; i++ {
 		for j := rect.min.x; j < rect.max.x; j++ {
@@ -41,7 +48,9 @@ func (fb *FrameBuffer) Fill(rect Rect, c color.Color) {
 	}
 }
 
-func (fb FrameBuffer) ToTexture() io.Reader {
+// ToImageReader converts the FrameBuffer into an Png-Image
+// Buffer and returns an io.Reader
+func (fb FrameBuffer) ToImageReader() io.Reader {
 	upLeft := image.Point{0, 0}
 	lowRight := image.Point{fb.width, fb.height}
 
@@ -50,32 +59,15 @@ func (fb FrameBuffer) ToTexture() io.Reader {
 	// Set color for each pixel.
 	for x := 0; x < fb.width; x++ {
 		for y := 0; y < fb.height; y++ {
-			switch {
-			// case x < fb.width/2 && y < fb.height/2: // upper left quadrant
-			// 	img.Set(x, y, cyan)
-			// case x >= fb.width/2 && y >= fb.height/2: // lower right quadrant
-			// 	img.Set(x, y, color.White)
-			default:
-				img.Set(x, y, fb.ColorAt(x, y))
-				//fmt.Printf("%v\n", fb.ColorAt(x, y))
-				// Use zero value.
-			}
+			img.Set(x, y, fb.ColorAt(x, y))
 		}
 	}
 
 	var buf bytes.Buffer
-
-	//f, _ := os.Create("image.png")
-	//png.Encode(f, img)
-
 	err := png.Encode(&buf, img)
 	if err != nil {
 		fmt.Printf("Encode error")
 	}
-
-	// temp := bytes.NewReader(buf.Bytes())
-	// temp.Seek(0, 0)
-	// fmt.Printf("%v\n", temp.Len())
 
 	return bytes.NewReader(buf.Bytes())
 }
