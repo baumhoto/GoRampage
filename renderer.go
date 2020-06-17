@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/baumhoto/prototype/draw"
 )
@@ -31,7 +32,7 @@ func (r *Renderer) draw(world World, window draw.Window) {
 				max := Vector{float64(x + 1), float64(y + 1)}
 				max.Multiply(scale)
 				rect := Rect{min, max}
-				r.frameBuffer.Fill(rect, white)
+				r.frameBuffer.Fill(rect, gray)
 			}
 		}
 	}
@@ -44,6 +45,7 @@ func (r *Renderer) draw(world World, window draw.Window) {
 
 	err := window.DrawImageReader(r.frameBuffer.ToImageReader())
 	if err != nil {
-		fmt.Printf("LoadTexture error")
+		fmt.Printf("LoadTexture error: %v\n", err)
+		os.Exit(-1)
 	}
 }

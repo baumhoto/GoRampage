@@ -14,16 +14,16 @@ type FrameBuffer struct {
 	pixels []color.Color
 	width  int
 	height int
+	backgroundColor color.Color
 }
 
 // NewFrameBuffer creates a new FrameBuffer of given size with
 // background-color c
 func NewFrameBuffer(width int, height int, c color.Color) FrameBuffer {
 	pixels := make([]color.Color, width*height)
-	for index := range pixels {
-		pixels[index] = c
-	}
-	return FrameBuffer{pixels, width, height}
+	result := FrameBuffer{pixels, width, height, c}
+	result.resetFrameBuffer()
+	return result
 }
 
 // SetColorAt sets the color for the pixel at locaton x, y to c
@@ -46,6 +46,12 @@ func (fb *FrameBuffer) Fill(rect Rect, c color.Color) {
 		for j := rect.min.x; j < rect.max.x; j++ {
 			fb.SetColorAt(int(j), int(i), c)
 		}
+	}
+}
+
+func (fb *FrameBuffer) resetFrameBuffer() {
+	for index := range fb.pixels {
+		fb.pixels[index] = fb.backgroundColor
 	}
 }
 

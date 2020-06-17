@@ -11,9 +11,11 @@ import (
 
 var world World
 var lastRenderFinishedTime time.Time
+var renderer Renderer
 
 func main() {
 	world = NewWorld(loadMap())
+	renderer = NewRenderer(640, 640)
 	draw.RunWindow("Title", 640, 640, update)
 }
 
@@ -23,8 +25,8 @@ func update(window draw.Window) {
 	}
 
 	world.update(GetInput(window))
-	renderer := NewRenderer(640, 640)
 	renderer.draw(world, window)
+	renderer.frameBuffer.resetFrameBuffer()
 }
 
 func loadMap() Tilemap {
