@@ -42,8 +42,7 @@ func (r *Renderer) draw(world World, window draw.Window) {
 	rect.min.Multiply(scale)
 	rect.max.Multiply(scale)
 	r.frameBuffer.Fill(rect, blue)
-
-	err := window.DrawImageReader(r.frameBuffer.ToImageReader())
+	err := window.DrawRGBA(r.frameBuffer.ToRGBA())
 	if err != nil {
 		fmt.Printf("LoadTexture error: %v\n", err)
 		os.Exit(-1)
