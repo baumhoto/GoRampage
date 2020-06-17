@@ -1,10 +1,7 @@
 package main
 
 import (
-	"fmt"
-	"os"
-
-	"github.com/baumhoto/prototype/draw"
+	"github.com/gonutz/prototype/draw"
 )
 
 // Renderer renders to the window
@@ -27,12 +24,7 @@ func (r *Renderer) draw(world World, window draw.Window) {
 	for y := 0; y < world.worldmap.Height; y++ {
 		for x := 0; x < world.worldmap.Width; x++ {
 			if world.worldmap.GetTile(x, y).isWall() {
-				min := Vector{float64(x), float64(y)}
-				min.Multiply(scale)
-				max := Vector{float64(x + 1), float64(y + 1)}
-				max.Multiply(scale)
-				rect := Rect{min, max}
-				r.frameBuffer.Fill(rect, gray)
+				window.FillRect(x*int(scale), y*int(scale), 1*int(scale), 1*int(scale), draw.White)
 			}
 		}
 	}
@@ -41,10 +33,5 @@ func (r *Renderer) draw(world World, window draw.Window) {
 	rect := world.player.rect()
 	rect.min.Multiply(scale)
 	rect.max.Multiply(scale)
-	r.frameBuffer.Fill(rect, blue)
-	err := window.DrawRGBA(r.frameBuffer.ToRGBA())
-	if err != nil {
-		fmt.Printf("LoadTexture error: %v\n", err)
-		os.Exit(-1)
-	}
+	window.FillRect(int(rect.min.x), int(rect.min.y), int(rect.max.x-rect.min.x), int(rect.max.y-rect.min.y), draw.Blue)
 }
