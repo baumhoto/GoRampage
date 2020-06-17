@@ -10,7 +10,7 @@ type Player struct {
 
 // NewPlayer creates a new Player
 func NewPlayer(position Vector) Player {
-	return Player{1.5, 0.25, position, Vector{0, 0}}
+	return Player{1.25, 0.25, position, Vector{0, 0}}
 }
 
 // rect return the player position as Rect
@@ -20,19 +20,27 @@ func (p Player) rect() Rect {
 		AddVectors(p.position, halfSize)}
 }
 
-func (p Player) isIntersecting(tileMap Tilemap) bool {
+func (p Player) intersection(tileMap Tilemap) (bool, Vector) {
 	rect := p.rect()
 	minX := int(rect.min.x)
 	maxX := int(rect.max.x)
 	minY := int(rect.min.y)
 	maxY := int(rect.max.y)
 
+	largestIntersection := Vector{}
+	result := false
 	for y := minY; y <= maxY; y++ {
 		for x := minX; x <= maxX; x++ {
 			if tileMap.GetTile(x, y).isWall() {
-				return true
+				min := Vector{float64(x), float64(y)}
+				max := Vector{float64(x + 1), float64(y + 1)}
+				wallRect := Rect{min, max}
+				if ok, intersection := rect.intersection(wallRect); ok && intersection.length() > largestIntersection.length() {
+					largestIntersection = intersection
+					result = true
+				}
 			}
 		}
 	}
-	return false
+	return result, largestIntersection
 }

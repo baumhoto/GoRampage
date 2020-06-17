@@ -30,13 +30,17 @@ func NewWorld(worldmap Tilemap) World {
 
 // update updates the World
 func (w *World) update(input Input) {
-	oldPosition := world.player.position
 	input.velocity.Multiply(w.player.speed)
 	w.player.velocity = input.velocity
 	w.player.position.Add(w.player.velocity)
 
-	if w.player.isIntersecting(w.worldmap) {
-		w.player.position = oldPosition
+	for {
+		if ok, intersection := w.player.intersection(w.worldmap); ok {
+			intersection.Multiply(-0.01)
+			w.player.position.Substract(intersection)
+		} else {
+			break
+		}
 	}
 
 	w.player.position.x = math.Mod(w.player.position.x, float64(w.worldmap.Width))
