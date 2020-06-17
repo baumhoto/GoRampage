@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/gonutz/prototype/draw"
+	"github.com/baumhoto/prototype/draw"
 )
 
 // Renderer renders to the window

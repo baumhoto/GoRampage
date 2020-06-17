@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/gonutz/prototype/draw"
+	"github.com/baumhoto/prototype/draw"
 )
 
 var world World
