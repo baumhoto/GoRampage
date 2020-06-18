@@ -1,5 +1,6 @@
 package main
 
 type Input struct {
-	velocity Vector
+	speed    float64
+	rotation Rotation
 }

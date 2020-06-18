@@ -31,11 +31,18 @@ func (v *Vector) Divide(divisor float64) {
 	v.y /= divisor
 }
 
+// rotated returns a new Vector with the rotation applied
+func (v Vector) rotated(rotation Rotation) Vector {
+	return Vector{v.x*rotation.m1 + v.y*rotation.m2,
+		v.x*rotation.m3 + v.y*rotation.m4}
+}
+
 // length returns the length of the vector
 func (v Vector) length() float64 {
 	return math.Sqrt(v.x*v.x + v.y*v.y)
 }
 
+// orthogonal returns the orthogonal vector
 func (v Vector) orthogonal() Vector {
 	return Vector{-v.y, v.x}
 }

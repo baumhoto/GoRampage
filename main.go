@@ -54,20 +54,24 @@ func loadMap() Tilemap {
 }
 
 func GetInput(window draw.Window) Input {
-	input := Input{}
+	inputVector := Vector{}
 	velocity := float64(1)
 
 	if window.IsKeyDown(draw.KeyDown) {
-		input.velocity.y = velocity
+		inputVector.x = velocity
 	} else if window.IsKeyDown(draw.KeyUp) {
-		input.velocity.y = velocity * -1
+		inputVector.y = velocity * -1
 	}
-
 	if window.IsKeyDown(draw.KeyLeft) {
-		input.velocity.x = velocity * -1
+		inputVector.x = velocity * -1
 	} else if window.IsKeyDown(draw.KeyRight) {
-		input.velocity.x = velocity
+		inputVector.x = velocity
 	}
 
-	return input
+	rotation := inputVector.x * world.player.turningSpeed * worldTimeStep
+
+	return Input{
+		speed:    -inputVector.y,
+		rotation: NewRotation(math.Sin(rotation), math.Cos(rotation)),
+	}
 }
