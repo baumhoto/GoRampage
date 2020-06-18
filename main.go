@@ -13,6 +13,7 @@ import (
 var world World
 var lastRenderFinishedTime time.Time
 var renderer Renderer
+var fullScreen bool
 
 // TODO make frametime available from underlying window
 const timeStep = 1.0 / 60.0
@@ -22,12 +23,20 @@ const worldTimeStep = 1.0 / 120.0
 func main() {
 	world = NewWorld(loadMap())
 	renderer = Renderer{}
-	draw.RunWindow("Title", 640, 640, update)
+	draw.RunWindow("Title", 1280, 720, update)
 }
 
 func update(window draw.Window) {
 	if window.WasKeyPressed(draw.KeyEscape) {
 		window.Close()
+	}
+	if window.WasKeyPressed(draw.KeyF) {
+		if fullScreen {
+			window.SetFullscreen(false)
+		} else {
+			window.SetFullscreen(true)
+		}
+		fullScreen = !fullScreen
 	}
 
 	worldSteps := math.Ceil(timeStep / worldTimeStep)
@@ -58,7 +67,7 @@ func GetInput(window draw.Window) Input {
 	velocity := float64(1)
 
 	if window.IsKeyDown(draw.KeyDown) {
-		inputVector.x = velocity
+		inputVector.y = velocity
 	} else if window.IsKeyDown(draw.KeyUp) {
 		inputVector.y = velocity * -1
 	}
