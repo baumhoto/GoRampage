@@ -18,3 +18,5 @@ go-rampage
 .DS_Store
 *.prof
 *.png
+
+.idea/*.*
