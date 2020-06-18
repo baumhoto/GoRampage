@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"math"
 	"time"
 
 	"github.com/gonutz/prototype/draw"
@@ -12,6 +13,10 @@ import (
 var world World
 var lastRenderFinishedTime time.Time
 var renderer Renderer
+// TODO make frametime available from underlying window
+const timeStep = 1.0 / 60.0
+const maximumTimeStep = 1.0 /20.0
+const worldTimeStep = 1.0 / 120.0
 
 func main() {
 	world = NewWorld(loadMap())
@@ -24,9 +29,11 @@ func update(window draw.Window) {
 		window.Close()
 	}
 
-	world.update(GetInput(window))
+    worldSteps := math.Round(timeStep / worldTimeStep)
+	for i:=0; i < int(worldSteps); i++ {
+		world.update(float64(timeStep / worldSteps), GetInput(window))
+	}
 	renderer.draw(world, window)
-	renderer.frameBuffer.resetFrameBuffer()
 }
 
 func loadMap() Tilemap {
@@ -47,7 +54,7 @@ func loadMap() Tilemap {
 
 func GetInput(window draw.Window) Input {
 	input := Input{}
-	velocity := float64(0.01)
+	velocity := float64(1)
 
 	if window.IsKeyDown(draw.KeyDown) {
 		input.velocity.y = velocity

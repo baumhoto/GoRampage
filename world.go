@@ -29,9 +29,10 @@ func NewWorld(worldmap Tilemap) World {
 }
 
 // update updates the World
-func (w *World) update(input Input) {
+func (w *World) update(timeStep float64, input Input) {
 	input.velocity.Multiply(w.player.speed)
 	w.player.velocity = input.velocity
+	w.player.velocity.Multiply(timeStep)
 	w.player.position.Add(w.player.velocity)
 
 	for {

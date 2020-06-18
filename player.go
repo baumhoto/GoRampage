@@ -10,7 +10,7 @@ type Player struct {
 
 // NewPlayer creates a new Player
 func NewPlayer(position Vector) Player {
-	return Player{1.25, 0.25, position, Vector{0, 0}}
+	return Player{2, 0.25, position, Vector{0, 0}}
 }
 
 // rect return the player position as Rect
