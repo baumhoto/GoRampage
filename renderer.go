@@ -6,13 +6,6 @@ import (
 
 // Renderer renders to the window
 type Renderer struct {
-	frameBuffer FrameBuffer
-}
-
-// NewRenderer creates a new instance of a Renderer
-func NewRenderer(width int, height int) Renderer {
-	fb := NewFrameBuffer(width, height, black)
-	return Renderer{fb}
 }
 
 // draw renders the world into the window

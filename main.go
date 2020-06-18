@@ -20,7 +20,7 @@ const worldTimeStep = 1.0 / 120.0
 
 func main() {
 	world = NewWorld(loadMap())
-	renderer = NewRenderer(640, 640)
+	renderer = Renderer{}
 	draw.RunWindow("Title", 640, 640, update)
 }
 
