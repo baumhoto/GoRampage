@@ -13,9 +13,10 @@ import (
 var world World
 var lastRenderFinishedTime time.Time
 var renderer Renderer
+
 // TODO make frametime available from underlying window
 const timeStep = 1.0 / 60.0
-const maximumTimeStep = 1.0 /20.0
+const maximumTimeStep = 1.0 / 20.0
 const worldTimeStep = 1.0 / 120.0
 
 func main() {
@@ -29,9 +30,9 @@ func update(window draw.Window) {
 		window.Close()
 	}
 
-    worldSteps := math.Round(timeStep / worldTimeStep)
-	for i:=0; i < int(worldSteps); i++ {
-		world.update(float64(timeStep / worldSteps), GetInput(window))
+	worldSteps := math.Ceil(timeStep / worldTimeStep)
+	for i := 0; i < int(worldSteps); i++ {
+		world.update(float64(timeStep/worldSteps), GetInput(window))
 	}
 	renderer.draw(world, window)
 }

@@ -30,6 +30,11 @@ func NewWorld(worldmap Tilemap) World {
 
 // update updates the World
 func (w *World) update(timeStep float64, input Input) {
+	length := input.velocity.length()
+	if length > 0 {
+		input.velocity.Divide(length)
+		w.player.direction = input.velocity
+	}
 	input.velocity.Multiply(w.player.speed)
 	w.player.velocity = input.velocity
 	w.player.velocity.Multiply(timeStep)

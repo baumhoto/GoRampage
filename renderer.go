@@ -27,4 +27,9 @@ func (r *Renderer) draw(world World, window draw.Window) {
 	rect.min.Multiply(scale)
 	rect.max.Multiply(scale)
 	window.FillRect(int(rect.min.x), int(rect.min.y), int(rect.max.x-rect.min.x), int(rect.max.y-rect.min.y), draw.Blue)
+
+	// Draw line of sight
+	ray := Ray{world.player.position, world.player.direction}
+	lineEnd := world.worldmap.hitTest(ray)
+	window.DrawLine(int(world.player.position.x*scale), int(world.player.position.y*scale), int(lineEnd.x*scale), int(lineEnd.y*scale), draw.Green)
 }
