@@ -36,6 +36,10 @@ func (v Vector) length() float64 {
 	return math.Sqrt(v.x*v.x + v.y*v.y)
 }
 
+func (v Vector) orthogonal() Vector {
+	return Vector{-v.y, v.x}
+}
+
 // AddVectors adds 2 Vectors returning a new Vector
 func AddVectors(a Vector, b Vector) Vector {
 	return Vector{a.x + b.x, a.y + b.y}

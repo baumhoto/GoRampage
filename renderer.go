@@ -32,4 +32,16 @@ func (r *Renderer) draw(world World, window draw.Window) {
 	ray := Ray{world.player.position, world.player.direction}
 	lineEnd := world.worldmap.hitTest(ray)
 	window.DrawLine(int(world.player.position.x*scale), int(world.player.position.y*scale), int(lineEnd.x*scale), int(lineEnd.y*scale), draw.Green)
+
+	// Draw view plane
+	focalLength := 1.0
+	viewWidth := 1.0
+	viewPlane := world.player.direction.orthogonal()
+	viewPlane.Multiply(viewWidth)
+	viewCenter := MultiplyVector(world.player.direction, focalLength)
+	viewCenter.Add(world.player.position)
+	viewStart := DivideVector(viewPlane, 2)
+	viewStart = SubstractVectors(viewCenter, viewStart)
+	viewEnd := AddVectors(viewStart, viewPlane)
+	window.DrawLine(int(viewStart.x*scale), int(viewStart.y*scale), int(viewEnd.x*scale), int(viewEnd.y*scale), draw.Red)
 }
