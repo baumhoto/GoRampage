@@ -1,18 +1,23 @@
 package main
 
 import (
-	"github.com/gonutz/prototype/draw"
+	"github.com/hajimehoshi/ebiten"
 	"math"
 )
 
 // Renderer renders to the window
 type Renderer struct {
+	frameBuffer FrameBuffer
+}
+
+func NewRenderer(width int, height int) Renderer {
+	fb := NewFrameBuffer(width, height, black)
+	return Renderer{fb}
 }
 
 // draw renders the world into the window
-func (r *Renderer) draw(world World, window draw.Window) {
-	width, height := window.Size()
-	//scale := float64(height) / float64(world.worldmap.Height)
+func (r *Renderer) draw(world World, screen *ebiten.Image) {
+	width, height := screen.Size()
 
 	focalLength := 1.0
 	viewWidth := float64(width) / float64(height)
@@ -27,7 +32,7 @@ func (r *Renderer) draw(world World, window draw.Window) {
 	columns := width
 	step := DivideVector(viewPlane, float64(columns))
 	columnPosition := viewStart
-	for i := 0; i < columns; i++ {
+	for x := 0; x < columns; x++ {
 		rayDirection := SubstractVectors(columnPosition, world.player.position)
 		viewPlaneDistance := rayDirection.length()
 		ray := Ray{world.player.position, DivideVector(rayDirection, viewPlaneDistance)}
@@ -39,17 +44,19 @@ func (r *Renderer) draw(world World, window draw.Window) {
 		distanceRatio := viewPlaneDistance / focalLength
 		perpendicular := wallDistance / distanceRatio
 		realHeight := wallHeight * focalLength / perpendicular * float64(height)
-		wallColor := draw.Gray
+		wallColor := gray
 		if math.Floor(lineEnd.x) == lineEnd.x {
-			wallColor = draw.White
+			wallColor = white
 		}
 
 		// original code would use drawline but somehow looks weird
 		// using FillRect instead with width of 1 fixes the problem
 		// window.DrawLine(i, int((float64(height)-realHeight)/2), i,
 		//	int((float64(height)+realHeight)/2), wallColor)
-		window.FillRect(i, int((float64(height)-realHeight)/2), 1,
-			int(realHeight), wallColor)
+		from := Vector{float64(x), (float64(height) - realHeight) / 2}
+		to := Vector{float64(x), (float64(height) + realHeight) / 2}
+		r.frameBuffer.DrawLine(from, to, wallColor)
 		columnPosition.Add(step)
 	}
+	screen.DrawImage(r.frameBuffer.ToImage(), nil)
 }
