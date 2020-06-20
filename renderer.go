@@ -8,11 +8,12 @@ import (
 // Renderer renders to the window
 type Renderer struct {
 	frameBuffer FrameBuffer
+	textures    TextureManager
 }
 
 func NewRenderer(width int, height int) Renderer {
 	fb := NewFrameBuffer(width, height, black)
-	return Renderer{fb}
+	return Renderer{fb, loadTextures()}
 }
 
 // draw renders the world into the window
@@ -44,18 +45,18 @@ func (r *Renderer) draw(world World, screen *ebiten.Image) {
 		distanceRatio := viewPlaneDistance / focalLength
 		perpendicular := wallDistance / distanceRatio
 		realHeight := wallHeight * focalLength / perpendicular * float64(height)
-		wallColor := gray
+
+		wallTexture := r.textures.textures["textures/wall.png"]
+
+		wallX := lineEnd.x - math.Floor(lineEnd.x)
 		if math.Floor(lineEnd.x) == lineEnd.x {
-			wallColor = white
+			wallX = lineEnd.y - math.Floor(lineEnd.y)
 		}
 
-		// original code would use drawline but somehow looks weird
-		// using FillRect instead with width of 1 fixes the problem
-		// window.DrawLine(i, int((float64(height)-realHeight)/2), i,
-		//	int((float64(height)+realHeight)/2), wallColor)
-		from := Vector{float64(x), (float64(height) - realHeight) / 2}
-		to := Vector{float64(x), (float64(height) + realHeight) / 2}
-		r.frameBuffer.DrawLine(from, to, wallColor)
+		textureX := int(wallX * float64(wallTexture.image.Bounds().Size().X))
+		wallStart := Vector{float64(x), (float64(height)-realHeight)/2 - 0.001} // hack (add tiny offset)
+		r.frameBuffer.drawColumn(textureX, wallTexture, wallStart, realHeight, height, x)
+
 		columnPosition.Add(step)
 	}
 	screen.DrawImage(r.frameBuffer.ToImage(), nil)

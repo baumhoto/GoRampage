@@ -50,31 +50,15 @@ func (fb *FrameBuffer) Fill(rect Rect, c color.Color) {
 	}
 }
 
-func (fb *FrameBuffer) DrawLine(from, to Vector, color color.Color) {
-	difference := SubstractVectors(to, from)
-	var stepCount int
-	sign := -1.0
-	var step Vector
-	if math.Abs(difference.x) > math.Abs(difference.y) {
-		stepCount = int(math.Ceil(math.Abs(difference.x)))
-		if difference.x > 0 {
-			sign = 1.0
-		}
-		step = Vector{1, difference.y / difference.x}
-	} else {
-		stepCount = int(math.Ceil(math.Abs(difference.y)))
-		if difference.y > 0 {
-			sign = 1.0
-		}
-		step = Vector{difference.x / difference.y, 1}
-	}
-	step.Multiply(sign)
+func (fb *FrameBuffer) drawColumn(sourceX int, source Texture, atPoint Vector, height float64, windowHeight int, x int) {
+	start := int(atPoint.y)
+	end := int(math.Ceil(atPoint.y + height))
 
-	point := from
-
-	for i := 0; i < stepCount; i++ {
-		fb.SetColorAt(int(point.x), int(point.y), color)
-		point.Add(step)
+	stepY := float64(source.image.Bounds().Size().Y) / height
+	for y := math.Max(0.0, float64(start)); y < math.Min(float64(windowHeight), float64(end)); y++ {
+		sourceY := math.Max(0, y-atPoint.y) * stepY
+		sourceColor := source.GetColorAt(sourceX, int(sourceY))
+		fb.SetColorAt(int(atPoint.x), int(y), sourceColor)
 	}
 }
 
@@ -95,16 +79,4 @@ func (fb *FrameBuffer) ToImage() *ebiten.Image {
 	}
 
 	return fb.img
-	//outputFile, _ := os.Create("test.png")
-	//png.Encode(outputFile, img)
-	//outputFile.Close()
-
-	// var buf bytes.Buffer
-
-	// err := png.Encode(&buf, fb.img)
-	// if err != nil {
-	// 	fmt.Printf("Encode error")
-	// }
-
-	// return bytes.NewReader(buf.Bytes())
 }

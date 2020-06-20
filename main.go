@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/hajimehoshi/ebiten/inpututil"
+	"image"
+	_ "image/png"
 	"io/ioutil"
 	"log"
 	"math"
@@ -76,9 +78,28 @@ func loadMap() Tilemap {
 		return Tilemap{}
 	}
 
-	//fmt.Printf("%v\n", data.Tiles[12])
-
 	return data
+}
+
+func loadTextures() TextureManager {
+	file, err := os.Open("textures/wall.png")
+	if err != nil {
+		fmt.Printf("%v\n", err)
+	}
+
+	img, _, err := image.Decode(file)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+	}
+	texture := Texture{
+		category: Category_Wall,
+		image:    img,
+	}
+
+	textures := make(map[string]Texture)
+	textures[file.Name()] = texture
+
+	return TextureManager{textures: textures}
 }
 
 func GetInput() Input {
