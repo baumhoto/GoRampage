@@ -3,12 +3,19 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/hajimehoshi/ebiten/inpututil"
+	"image"
+	_ "image/png"
 	"io/ioutil"
+	"log"
 	"math"
+	"os"
 	"time"
 
-	"github.com/gonutz/prototype/draw"
+	"github.com/hajimehoshi/ebiten"
 )
+
+type Game struct{}
 
 var world World
 var lastRenderFinishedTime time.Time
@@ -19,31 +26,45 @@ var fullScreen bool
 const timeStep = 1.0 / 60.0
 const maximumTimeStep = 1.0 / 20.0
 const worldTimeStep = 1.0 / 120.0
+const screenwidth = 320
+const screenheight = 240
+const screenscale = 2
 
 func main() {
 	world = NewWorld(loadMap())
-	renderer = Renderer{}
-	draw.RunWindow("Title", 1280, 720, update)
+	renderer = NewRenderer(screenwidth, screenheight)
+	game := &Game{}
+	ebiten.SetWindowSize(screenwidth*screenscale, screenheight*screenscale)
+	ebiten.SetWindowTitle("GoRampage")
+	if err := ebiten.RunGame(game); err != nil {
+		log.Fatal(err)
+	}
 }
 
-func update(window draw.Window) {
-	if window.WasKeyPressed(draw.KeyEscape) {
-		window.Close()
-	}
-	if window.WasKeyPressed(draw.KeyF) {
-		if fullScreen {
-			window.SetFullscreen(false)
-		} else {
-			window.SetFullscreen(true)
-		}
-		fullScreen = !fullScreen
+// Update proceeds the game state.
+// Update is called every tick (1/60 [s] by default).
+func (g *Game) Update(screen *ebiten.Image) error {
+	if inpututil.IsKeyJustReleased(ebiten.KeyEscape) {
+		os.Exit(1)
 	}
 
 	worldSteps := math.Ceil(timeStep / worldTimeStep)
 	for i := 0; i < int(worldSteps); i++ {
-		world.update(float64(timeStep/worldSteps), GetInput(window))
+		world.update(float64(timeStep/worldSteps), GetInput())
 	}
-	renderer.draw(world, window)
+
+	return nil
+}
+
+// Draw draws the game screen.
+// Draw is called every frame (typically 1/60[s] for 60Hz display).
+func (g *Game) Draw(screen *ebiten.Image) {
+	renderer.draw(world, screen)
+	renderer.frameBuffer.resetFrameBuffer()
+}
+
+func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
+	return screenwidth, screenheight
 }
 
 func loadMap() Tilemap {
@@ -57,23 +78,42 @@ func loadMap() Tilemap {
 		return Tilemap{}
 	}
 
-	//fmt.Printf("%v\n", data.Tiles[12])
-
 	return data
 }
 
-func GetInput(window draw.Window) Input {
+func loadTextures() TextureManager {
+	file, err := os.Open("textures/wall.png")
+	if err != nil {
+		fmt.Printf("%v\n", err)
+	}
+
+	img, _, err := image.Decode(file)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+	}
+	texture := Texture{
+		category: Category_Wall,
+		image:    img,
+	}
+
+	textures := make(map[string]Texture)
+	textures[file.Name()] = texture
+
+	return TextureManager{textures: textures}
+}
+
+func GetInput() Input {
 	inputVector := Vector{}
 	velocity := float64(1)
 
-	if window.IsKeyDown(draw.KeyDown) {
+	if ebiten.IsKeyPressed(ebiten.KeyDown) {
 		inputVector.y = velocity
-	} else if window.IsKeyDown(draw.KeyUp) {
+	} else if ebiten.IsKeyPressed(ebiten.KeyUp) {
 		inputVector.y = velocity * -1
 	}
-	if window.IsKeyDown(draw.KeyLeft) {
+	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
 		inputVector.x = velocity * -1
-	} else if window.IsKeyDown(draw.KeyRight) {
+	} else if ebiten.IsKeyPressed(ebiten.KeyRight) {
 		inputVector.x = velocity
 	}
 
