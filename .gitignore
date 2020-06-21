@@ -21,4 +21,5 @@ go-rampage
 
 .idea/*.*
 
-!pictures/*.*
+!pictures/*.png
+!textures/*.png
