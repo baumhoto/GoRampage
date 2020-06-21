@@ -45,14 +45,10 @@ func (r *Renderer) draw(world World, screen *ebiten.Image) {
 		distanceRatio := viewPlaneDistance / focalLength
 		perpendicular := wallDistance / distanceRatio
 		realHeight := wallHeight * focalLength / perpendicular * float64(height)
-
-		wallTexture := r.textures.textures["wall2.png"]
-		if math.Floor(lineEnd.x) == lineEnd.x {
-			wallTexture = r.textures.textures["wall.png"]
-		}
-
 		// is the wall a vertical (north/south) or horizontal (east/west)
+		tile := world.worldmap.tile(lineEnd, ray.direction)
 		wallX := lineEnd.x - math.Floor(lineEnd.x)
+		wallTexture := r.textures.GetWallTextureById(tile.Tiletype, math.Floor(lineEnd.x) != lineEnd.x)
 		if math.Floor(lineEnd.x) == lineEnd.x {
 			wallX = lineEnd.y - math.Floor(lineEnd.y)
 		}
@@ -63,8 +59,6 @@ func (r *Renderer) draw(world World, screen *ebiten.Image) {
 		r.frameBuffer.drawColumn(textureX, wallTexture, wallStart, realHeight, height, x)
 
 		// Draw floor
-		floorTexture := r.textures.textures["floor.png"]
-		ceilingTexture := r.textures.textures["ceiling.png"]
 		floorStart := wallStart.y + float64(realHeight) + 1
 		for y := int(math.Min(floorStart, float64(height))); y < height; y++ {
 			normalizedY := (float64(y)/float64(height))*2 - 1
@@ -74,6 +68,9 @@ func (r *Renderer) draw(world World, screen *ebiten.Image) {
 			mapPosition.Add(ray.origin)
 			tileX := math.Floor(mapPosition.x)
 			tileY := math.Floor(mapPosition.y)
+			tile := world.worldmap.GetTile(int(tileX), int(tileY))
+			floorTexture := r.textures.GetFloorCeilingTextureById(tile.Tiletype, false)
+			ceilingTexture := r.textures.GetFloorCeilingTextureById(tile.Tiletype, true)
 			textureX := mapPosition.x - tileX
 			textureY := mapPosition.y - tileY
 			r.frameBuffer.SetColorAt(x, y, floorTexture.GetColorAtNormalized(textureX, textureY))

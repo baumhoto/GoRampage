@@ -108,14 +108,18 @@ func loadTextures() TextureManager {
 		if err != nil {
 			panic(err)
 		}
-		textureName := strings.Split(strings.ToLower(fileName), string(os.PathSeparator))[1]
+		textureNameString := strings.Split(strings.ToLower(fileName), string(os.PathSeparator))[1]
+		textureNameParts := strings.Split(textureNameString, "_")
+		textureName := textureNameParts[1]
+		textureId := textureNameParts[0]
 
 		if img != nil {
 			texture := Texture{
+				name:     textureName,
 				category: GetTextureCategory(textureName),
 				image:    img,
 			}
-			textures[textureName] = texture
+			textures[textureId] = texture
 		}
 	}
 
