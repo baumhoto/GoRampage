@@ -85,7 +85,7 @@ func loadMap() Tilemap {
 
 func loadTextures() TextureManager {
 	var textureFiles []string
-	root := "textures/"
+	root := "textures" + string(os.PathSeparator)
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if strings.Contains(path, ".png") {
 			textureFiles = append(textureFiles, path)
@@ -108,8 +108,7 @@ func loadTextures() TextureManager {
 		if err != nil {
 			panic(err)
 		}
-
-		textureName := strings.Split(strings.ToLower(fileName), "/")[1]
+		textureName := strings.Split(strings.ToLower(fileName), string(os.PathSeparator))[1]
 
 		if img != nil {
 			texture := Texture{
