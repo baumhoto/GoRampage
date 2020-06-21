@@ -10,6 +10,8 @@ import (
 	"log"
 	"math"
 	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/hajimehoshi/ebiten"
@@ -82,22 +84,41 @@ func loadMap() Tilemap {
 }
 
 func loadTextures() TextureManager {
-	file, err := os.Open("textures/wall.png")
+	var textureFiles []string
+	root := "textures/"
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if strings.Contains(path, ".png") {
+			textureFiles = append(textureFiles, path)
+		}
+		return nil
+	})
 	if err != nil {
-		fmt.Printf("%v\n", err)
+		panic(err)
 	}
-
-	img, _, err := image.Decode(file)
-	if err != nil {
-		fmt.Printf("%v\n", err)
-	}
-	texture := Texture{
-		category: Category_Wall,
-		image:    img,
-	}
-
 	textures := make(map[string]Texture)
-	textures[file.Name()] = texture
+
+	for _, fileName := range textureFiles {
+		//fmt.Printf("%v\n", fileName)
+		file, err := os.Open(fileName)
+		if err != nil {
+			panic(err)
+		}
+
+		img, _, err := image.Decode(file)
+		if err != nil {
+			panic(err)
+		}
+
+		textureName := strings.Split(strings.ToLower(fileName), "/")[1]
+
+		if img != nil {
+			texture := Texture{
+				category: GetTextureCategory(textureName),
+				image:    img,
+			}
+			textures[textureName] = texture
+		}
+	}
 
 	return TextureManager{textures: textures}
 }

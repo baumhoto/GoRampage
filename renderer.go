@@ -46,16 +46,39 @@ func (r *Renderer) draw(world World, screen *ebiten.Image) {
 		perpendicular := wallDistance / distanceRatio
 		realHeight := wallHeight * focalLength / perpendicular * float64(height)
 
-		wallTexture := r.textures.textures["textures/wall.png"]
+		wallTexture := r.textures.textures["wall2.png"]
+		if math.Floor(lineEnd.x) == lineEnd.x {
+			wallTexture = r.textures.textures["wall.png"]
+		}
 
+		// is the wall a vertical (north/south) or horizontal (east/west)
 		wallX := lineEnd.x - math.Floor(lineEnd.x)
 		if math.Floor(lineEnd.x) == lineEnd.x {
 			wallX = lineEnd.y - math.Floor(lineEnd.y)
 		}
 
 		textureX := int(wallX * float64(wallTexture.image.Bounds().Size().X))
-		wallStart := Vector{float64(x), (float64(height)-realHeight)/2 - 0.001} // hack (add tiny offset)
+		// hack (substract a tiny ofset to prevent texture smearing)
+		wallStart := Vector{float64(x), (float64(height)-realHeight)/2 - 0.001}
 		r.frameBuffer.drawColumn(textureX, wallTexture, wallStart, realHeight, height, x)
+
+		// Draw floor
+		floorTexture := r.textures.textures["floor.png"]
+		ceilingTexture := r.textures.textures["ceiling.png"]
+		floorStart := wallStart.y + float64(realHeight) + 1
+		for y := int(math.Min(floorStart, float64(height))); y < height; y++ {
+			normalizedY := (float64(y)/float64(height))*2 - 1
+			perpendicular := wallHeight * focalLength / normalizedY
+			distance := perpendicular * distanceRatio
+			mapPosition := MultiplyVector(ray.direction, distance)
+			mapPosition.Add(ray.origin)
+			tileX := math.Floor(mapPosition.x)
+			tileY := math.Floor(mapPosition.y)
+			textureX := mapPosition.x - tileX
+			textureY := mapPosition.y - tileY
+			r.frameBuffer.SetColorAt(x, y, floorTexture.GetColorAtNormalized(textureX, textureY))
+			r.frameBuffer.SetColorAt(x, height-1-y, ceilingTexture.GetColorAtNormalized(textureX, textureY))
+		}
 
 		columnPosition.Add(step)
 	}
