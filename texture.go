@@ -3,34 +3,55 @@ package main
 import (
 	"image"
 	"image/color"
+	"strconv"
 	"strings"
-)
-
-const (
-	Category_Wall = 0
 )
 
 type TextureManager struct {
 	textures map[string]Texture
 }
 
-func (tm TextureManager) GetTextureByName(name string) Texture {
-	return tm.textures[name]
+func (tm TextureManager) GetWallTextureById(id int, isVertical bool) Texture {
+	searchId := strconv.Itoa(id)
+	if isVertical {
+		searchId = searchId + "v"
+	}
+	return tm.textures[searchId]
+}
+
+func (tm TextureManager) GetFloorCeilingTextureById(id int, isCeiling bool) Texture {
+	searchId := strconv.Itoa(id)
+	//if id != 0 || id != 4 {
+	//	searchId = "0"
+	//}
+
+	if id == 4 && isCeiling {
+		searchId = "0c"
+	} else if isCeiling {
+		searchId = searchId + "c"
+	} else {
+		searchId = searchId + "f"
+	}
+
+	result := tm.textures[searchId]
+
+	if result.image == nil {
+		result = tm.GetWallTextureById(id, isCeiling)
+	}
+
+	return result
 }
 
 func GetTextureCategory(textureName string) int {
 	if strings.Contains(textureName, "wall") {
 		return 0
-	} else if strings.Contains(textureName, "floor") {
-		return 1
-	} else if strings.Contains(textureName, "ceiling") {
-		return 1
 	}
 
-	return 0
+	return 1
 }
 
 type Texture struct {
+	name     string
 	category int
 	image    image.Image
 }

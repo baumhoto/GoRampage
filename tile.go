@@ -11,9 +11,9 @@ type Tile struct {
 
 func (t Tile) isWall() bool {
 	switch t.Tiletype {
-	case 1:
-		return true
-	default:
+	case 0, 4:
 		return false
+	default:
+		return true
 	}
 }
