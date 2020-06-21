@@ -33,7 +33,13 @@ func (tm TextureManager) GetFloorCeilingTextureById(id int, isCeiling bool) Text
 		searchId = searchId + "f"
 	}
 
-	return tm.textures[searchId]
+	result := tm.textures[searchId]
+
+	if result.image == nil {
+		result = tm.GetWallTextureById(id, isCeiling)
+	}
+
+	return result
 }
 
 func GetTextureCategory(textureName string) int {
