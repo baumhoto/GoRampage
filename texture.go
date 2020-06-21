@@ -21,9 +21,6 @@ func (tm TextureManager) GetWallTextureById(id int, isVertical bool) Texture {
 
 func (tm TextureManager) GetFloorCeilingTextureById(id int, isCeiling bool) Texture {
 	searchId := strconv.Itoa(id)
-	//if id != 0 || id != 4 {
-	//	searchId = "0"
-	//}
 
 	if id == 4 && isCeiling {
 		searchId = "0c"

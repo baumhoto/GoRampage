@@ -58,8 +58,10 @@ func (r *Renderer) draw(world World, screen *ebiten.Image) {
 		wallStart := Vector{float64(x), (float64(height)-realHeight)/2 - 0.001}
 		r.frameBuffer.drawColumn(textureX, wallTexture, wallStart, realHeight, height, x)
 
-		// Draw floor
+		// Draw floor & ceiling
 		floorStart := wallStart.y + float64(realHeight) + 1
+		floorTile := Tile{-1}
+		var floorTexture, ceilingTexture Texture
 		for y := int(math.Min(floorStart, float64(height))); y < height; y++ {
 			normalizedY := (float64(y)/float64(height))*2 - 1
 			perpendicular := wallHeight * focalLength / normalizedY
@@ -69,8 +71,12 @@ func (r *Renderer) draw(world World, screen *ebiten.Image) {
 			tileX := math.Floor(mapPosition.x)
 			tileY := math.Floor(mapPosition.y)
 			tile := world.worldmap.GetTile(int(tileX), int(tileY))
-			floorTexture := r.textures.GetFloorCeilingTextureById(tile.Tiletype, false)
-			ceilingTexture := r.textures.GetFloorCeilingTextureById(tile.Tiletype, true)
+			if tile != floorTile {
+				floorTexture = r.textures.GetFloorCeilingTextureById(tile.Tiletype, false)
+				ceilingTexture = r.textures.GetFloorCeilingTextureById(tile.Tiletype, true)
+				floorTile = tile
+			}
+
 			textureX := mapPosition.x - tileX
 			textureY := mapPosition.y - tileY
 			r.frameBuffer.SetColorAt(x, y, floorTexture.GetColorAtNormalized(textureX, textureY))
