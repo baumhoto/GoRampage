@@ -119,7 +119,6 @@ func (r *Renderer) draw2d(world World, screen *ebiten.Image) {
 	viewStart := DivideVector(viewPlane, 2)
 	viewStart = SubstractVectors(viewCenter, viewStart)
 	viewEnd := AddVectors(viewStart, viewPlane)
-	//viewStart.Multiply(scale)
 	viewEnd.Multiply(scale)
 	r.frameBuffer.DrawLine(MultiplyVector(viewStart, scale), viewEnd, red)
 
@@ -131,10 +130,21 @@ func (r *Renderer) draw2d(world World, screen *ebiten.Image) {
 		rayDirection := SubstractVectors(columnPosition, world.player.position)
 		viewPlaneDistance := rayDirection.length()
 		ray := Ray{world.player.position, DivideVector(rayDirection, viewPlaneDistance)}
-		lineEnd := world.worldmap.hitTest(ray)
+		end := world.worldmap.hitTest(ray)
+		for _, sprite := range world.sprites() {
+			hit := sprite.hitTest(ray)
+			if (hit == Vector{}) { // does not work for vector 0, 0???
+				continue
+			}
+			spriteDistance := SubstractVectors(hit, ray.origin).length()
+			if spriteDistance > (SubstractVectors(end, ray.origin).length()) {
+				continue
+			}
+			end = hit
+		}
 		start := MultiplyVector(ray.origin, scale)
-		lineEnd.Multiply(scale)
-		r.frameBuffer.DrawLine(start, lineEnd, green)
+		end.Multiply(scale)
+		r.frameBuffer.DrawLine(start, end, green)
 		columnPosition.Add(step)
 	}
 
