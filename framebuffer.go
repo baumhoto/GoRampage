@@ -62,6 +62,34 @@ func (fb *FrameBuffer) drawColumn(sourceX int, source Texture, atPoint Vector, h
 	}
 }
 
+func (fb *FrameBuffer) DrawLine(from, to Vector, color color.Color) {
+	difference := SubstractVectors(to, from)
+	var stepCount int
+	sign := -1.0
+	var step Vector
+	if math.Abs(difference.x) > math.Abs(difference.y) {
+		stepCount = int(math.Ceil(math.Abs(difference.x)))
+		if difference.x > 0 {
+			sign = 1.0
+		}
+		step = Vector{1, difference.y / difference.x}
+	} else {
+		stepCount = int(math.Ceil(math.Abs(difference.y)))
+		if difference.y > 0 {
+			sign = 1.0
+		}
+		step = Vector{difference.x / difference.y, 1}
+	}
+	step.Multiply(sign)
+
+	point := from
+
+	for i := 0; i < stepCount; i++ {
+		fb.SetColorAt(int(point.x), int(point.y), color)
+		point.Add(step)
+	}
+}
+
 func (fb *FrameBuffer) resetFrameBuffer() {
 	for index := range fb.pixels {
 		fb.pixels[index] = fb.backgroundColor

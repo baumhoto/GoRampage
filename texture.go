@@ -11,18 +11,18 @@ type TextureManager struct {
 	textures map[string]Texture
 }
 
-func (tm TextureManager) GetWallTextureById(id int, isVertical bool) Texture {
-	searchId := strconv.Itoa(id)
+func (tm TextureManager) GetWallTextureByTile(tile Tile, isVertical bool) Texture {
+	searchId := strconv.Itoa(int(tile))
 	if isVertical {
 		searchId = searchId + "v"
 	}
 	return tm.textures[searchId]
 }
 
-func (tm TextureManager) GetFloorCeilingTextureById(id int, isCeiling bool) Texture {
-	searchId := strconv.Itoa(id)
+func (tm TextureManager) GetFloorCeilingTextureByTile(tile Tile, isCeiling bool) Texture {
+	searchId := strconv.Itoa(int(tile))
 
-	if id == 4 && isCeiling {
+	if tile == 4 && isCeiling {
 		searchId = "0c"
 	} else if isCeiling {
 		searchId = searchId + "c"
@@ -33,7 +33,7 @@ func (tm TextureManager) GetFloorCeilingTextureById(id int, isCeiling bool) Text
 	result := tm.textures[searchId]
 
 	if result.image == nil {
-		result = tm.GetWallTextureById(id, isCeiling)
+		result = tm.GetWallTextureByTile(tile, isCeiling)
 	}
 
 	return result

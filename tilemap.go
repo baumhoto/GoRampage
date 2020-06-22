@@ -10,7 +10,7 @@ type Tilemap struct {
 }
 
 func (tm Tilemap) GetTile(x, y int) Tile {
-	return Tile{tm.Tiles[y*tm.Width+x]}
+	return Tile(tm.Tiles[y*tm.Width+x])
 }
 
 func (tm Tilemap) tile(position, direction Vector) Tile {
