@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/hajimehoshi/ebiten"
 	"math"
+	"sort"
 )
 
 // Renderer renders to the window
@@ -28,6 +29,18 @@ func (r *Renderer) draw(world World, screen *ebiten.Image) {
 	viewCenter.Add(world.player.position)
 	viewStart := DivideVector(viewPlane, 2)
 	viewStart = SubstractVectors(viewCenter, viewStart)
+
+	// sort sprites by distance from player, greatest distance first
+	spritesByDistance := make(map[float64]Billboard)
+	for _, sprite := range world.sprites() {
+		spriteDistance := SubstractVectors(sprite.start, world.player.position).length()
+		spritesByDistance[spriteDistance] = sprite
+	}
+	keys := make([]float64, 0)
+	for k, _ := range spritesByDistance {
+		keys = append(keys, k)
+	}
+	sort.Sort(sort.Reverse(sort.Float64Slice(keys)))
 
 	// Cast rays
 	columns := width
@@ -56,7 +69,7 @@ func (r *Renderer) draw(world World, screen *ebiten.Image) {
 		textureX := int(wallX * float64(wallTexture.image.Bounds().Size().X))
 		// hack (substract a tiny ofset to prevent texture smearing)
 		wallStart := Vector{float64(x), (float64(height)-realHeight)/2 - 0.001}
-		r.frameBuffer.drawColumn(textureX, wallTexture, wallStart, realHeight, height, x)
+		r.frameBuffer.drawColumn(textureX, wallTexture, wallStart, realHeight, height)
 
 		// Draw floor & ceiling
 		floorStart := wallStart.y + float64(realHeight) + 1
@@ -81,6 +94,26 @@ func (r *Renderer) draw(world World, screen *ebiten.Image) {
 			textureY := mapPosition.y - tileY
 			r.frameBuffer.SetColorAt(x, y, floorTexture.GetColorAtNormalized(textureX, textureY))
 			r.frameBuffer.SetColorAt(x, height-1-y, ceilingTexture.GetColorAtNormalized(textureX, textureY))
+		}
+
+		// Draw sprites
+		for _, spriteDistance := range keys {
+
+			if spriteDistance > wallDistance {
+				continue
+			}
+
+			sprite := spritesByDistance[spriteDistance]
+
+			hit := sprite.hitTest(ray)
+
+			perpendicular = spriteDistance / distanceRatio
+			spriteHeight := wallHeight / perpendicular * float64((height))
+			spriteX := SubstractVectors(hit, sprite.start).length() / sprite.length
+			spriteTexture := r.textures.textures["5"]
+			textureX = int(math.Min(spriteX*float64(spriteTexture.Width()), float64(spriteTexture.Width()-1)))
+			start := Vector{float64(x), (float64(height)-spriteHeight)/2 + 0.001}
+			r.frameBuffer.drawColumn(textureX, spriteTexture, start, spriteHeight, height)
 		}
 
 		columnPosition.Add(step)

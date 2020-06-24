@@ -50,7 +50,7 @@ func (fb *FrameBuffer) Fill(rect Rect, c color.Color) {
 	}
 }
 
-func (fb *FrameBuffer) drawColumn(sourceX int, source Texture, atPoint Vector, height float64, windowHeight int, x int) {
+func (fb *FrameBuffer) drawColumn(sourceX int, source Texture, atPoint Vector, height float64, windowHeight int) {
 	start := int(atPoint.y)
 	end := int(math.Ceil(atPoint.y + height))
 
@@ -58,7 +58,7 @@ func (fb *FrameBuffer) drawColumn(sourceX int, source Texture, atPoint Vector, h
 	for y := math.Max(0.0, float64(start)); y < math.Min(float64(windowHeight), float64(end)); y++ {
 		sourceY := math.Max(0, y-atPoint.y) * stepY
 		sourceColor := source.GetColorAt(sourceX, int(sourceY))
-		fb.SetColorAt(int(atPoint.x), int(y), sourceColor)
+		fb.blendPixel(int(atPoint.x), int(y), sourceColor)
 	}
 }
 
@@ -88,6 +88,18 @@ func (fb *FrameBuffer) DrawLine(from, to Vector, color color.Color) {
 		fb.SetColorAt(int(point.x), int(point.y), color)
 		point.Add(step)
 	}
+}
+
+func (fb *FrameBuffer) blendPixel(x, y int, newColor color.Color) {
+	oldR, oldG, oldB, _ := fb.ColorAt(x, y).RGBA()
+	newR, newG, newB, newA := newColor.RGBA()
+	inverseAlpha := 1 - float64(newA)/255
+	fb.SetColorAt(x, y, color.RGBA{
+		R: uint8(oldR*uint32(inverseAlpha) + newR),
+		G: uint8(oldG*uint32(inverseAlpha) + newG),
+		B: uint8(oldB*uint32(inverseAlpha) + newB),
+		A: 255,
+	})
 }
 
 func (fb *FrameBuffer) resetFrameBuffer() {
