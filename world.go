@@ -8,11 +8,13 @@ import (
 type World struct {
 	worldmap Tilemap
 	player   Player
+	monsters []Monster
 }
 
 // NewWorld creates a new World.
 func NewWorld(worldmap Tilemap) World {
 	var player Player
+	var monsters []Monster
 	for y := 0; y < worldmap.Height; y++ {
 		for x := 0; x < worldmap.Width; x++ {
 			position := Vector{float64(x) + 0.5, float64(y) + 0.5}
@@ -22,10 +24,14 @@ func NewWorld(worldmap Tilemap) World {
 				break
 			case 1:
 				player = NewPlayer(position)
+				break
+			case 2:
+				monsters = append(monsters, Monster{position: position})
+				break
 			}
 		}
 	}
-	return World{worldmap, player}
+	return World{worldmap, player, monsters}
 }
 
 // update updates the World
@@ -46,4 +52,15 @@ func (w *World) update(timeStep float64, input Input) {
 
 	w.player.position.x = math.Mod(w.player.position.x, float64(w.worldmap.Width))
 	w.player.position.y = math.Mod(w.player.position.y, float64(w.worldmap.Height))
+}
+
+func (w World) sprites() []Billboard {
+	spritePlane := w.player.direction.orthogonal()
+	var result []Billboard
+	for _, monster := range w.monsters {
+		start := DivideVector(spritePlane, 2)
+		start = SubstractVectors(monster.position, start)
+		result = append(result, NewBillBoard(start, spritePlane, 1))
+	}
+	return result
 }
