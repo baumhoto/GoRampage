@@ -14,21 +14,24 @@ func (v *Vector) Add(add Vector) {
 }
 
 // Substract Vectors
-func (v *Vector) Substract(substract Vector) {
+func (v *Vector) Substract(substract Vector) *Vector {
 	v.x -= substract.x
 	v.y -= substract.y
+	return v
 }
 
 // Multiply Vector
-func (v *Vector) Multiply(multiplier float64) {
+func (v *Vector) Multiply(multiplier float64) *Vector {
 	v.x *= multiplier
 	v.y *= multiplier
+	return v
 }
 
 // Divide Vector
-func (v *Vector) Divide(divisor float64) {
+func (v *Vector) Divide(divisor float64) *Vector {
 	v.x /= divisor
 	v.y /= divisor
+	return v
 }
 
 // rotated returns a new Vector with the rotation applied

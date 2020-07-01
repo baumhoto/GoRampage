@@ -7,12 +7,13 @@ type Billboard struct {
 	end       Vector
 	direction Vector
 	length    float64
+	texture   Texture
 }
 
-func NewBillBoard(start Vector, direction Vector, length float64) Billboard {
+func NewBillBoard(start Vector, direction Vector, length float64, texture Texture) Billboard {
 	end := MultiplyVector(direction, length)
 	end.Add(start)
-	return Billboard{start, end, direction, length}
+	return Billboard{start, end, direction, length, texture}
 }
 
 func (b Billboard) hitTest(ray Ray) Vector {

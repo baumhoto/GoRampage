@@ -26,10 +26,9 @@ func (r Rect) intersection(rect Rect) (bool, Vector) {
 	vectors := [4]Vector{left, right, up, down}
 	var result Vector
 	for i, e := range vectors {
-		if i == 0 || e.length() > result.length() {
+		if i == 0 || e.length() < result.length() {
 			result = e
 		}
-		i++
 	}
 	return true, result
 }

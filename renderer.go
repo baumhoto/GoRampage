@@ -12,9 +12,9 @@ type Renderer struct {
 	textures    TextureManager
 }
 
-func NewRenderer(width int, height int) Renderer {
+func NewRenderer(width int, height int, manager TextureManager) Renderer {
 	fb := NewFrameBuffer(width, height, black)
-	return Renderer{fb, loadTextures()}
+	return Renderer{fb, manager}
 }
 
 // draw renders the world into the window
@@ -32,7 +32,7 @@ func (r *Renderer) draw(world World, screen *ebiten.Image) {
 
 	// sort sprites by distance from player, greatest distance first
 	spritesByDistance := make(map[float64]Billboard)
-	for _, sprite := range world.sprites() {
+	for _, sprite := range world.sprites(r.textures) {
 		spriteDistance := SubstractVectors(sprite.start, world.player.position).length()
 		spritesByDistance[spriteDistance] = sprite
 	}
@@ -110,7 +110,7 @@ func (r *Renderer) draw(world World, screen *ebiten.Image) {
 			perpendicular = spriteDistance / distanceRatio
 			spriteHeight := wallHeight / perpendicular * float64((height))
 			spriteX := SubstractVectors(hit, sprite.start).length() / sprite.length
-			spriteTexture := r.textures.textures["5"]
+			spriteTexture := sprite.texture
 			textureX = int(math.Min(spriteX*float64(spriteTexture.Width()), float64(spriteTexture.Width()-1)))
 			start := Vector{float64(x), (float64(height)-spriteHeight)/2 + 0.001}
 			r.frameBuffer.drawColumn(textureX, spriteTexture, start, spriteHeight, height)
@@ -164,7 +164,7 @@ func (r *Renderer) draw2d(world World, screen *ebiten.Image) {
 		viewPlaneDistance := rayDirection.length()
 		ray := Ray{world.player.position, DivideVector(rayDirection, viewPlaneDistance)}
 		end := world.worldmap.hitTest(ray)
-		for _, sprite := range world.sprites() {
+		for _, sprite := range world.sprites(r.textures) {
 			hit := sprite.hitTest(ray)
 			if (hit == Vector{}) { // does not work for vector 0, 0???
 				continue
@@ -181,7 +181,7 @@ func (r *Renderer) draw2d(world World, screen *ebiten.Image) {
 		columnPosition.Add(step)
 	}
 
-	for _, line := range world.sprites() {
+	for _, line := range world.sprites(r.textures) {
 		r.frameBuffer.DrawLine(MultiplyVector(line.start, scale), MultiplyVector(line.end, scale), green)
 	}
 

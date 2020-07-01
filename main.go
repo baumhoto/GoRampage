@@ -4,14 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/hajimehoshi/ebiten/inpututil"
-	"image"
 	_ "image/png"
 	"io/ioutil"
 	"log"
 	"math"
 	"os"
-	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/hajimehoshi/ebiten"
@@ -23,6 +20,8 @@ var world World
 var lastRenderFinishedTime time.Time
 var renderer Renderer
 var fullScreen bool
+var textureManager *TextureManager
+var pause bool
 
 // TODO make frametime available from underlying window
 const timeStep = 1.0 / 60.0
@@ -33,8 +32,9 @@ const screenheight = 240
 const screenscale = 2
 
 func main() {
+	textureManager = GetInstance()
 	world = NewWorld(loadMap())
-	renderer = NewRenderer(screenwidth, screenheight)
+	renderer = NewRenderer(screenwidth, screenheight, *textureManager)
 	game := &Game{}
 	ebiten.SetWindowSize(screenwidth*screenscale, screenheight*screenscale)
 	ebiten.SetWindowTitle("GoRampage")
@@ -50,9 +50,15 @@ func (g *Game) Update(screen *ebiten.Image) error {
 		os.Exit(1)
 	}
 
-	worldSteps := math.Ceil(timeStep / worldTimeStep)
-	for i := 0; i < int(worldSteps); i++ {
-		world.update(float64(timeStep/worldSteps), GetInput())
+	if inpututil.IsKeyJustPressed(ebiten.KeyP) {
+		pause = !pause
+	}
+
+	if !pause {
+		worldSteps := math.Ceil(timeStep / worldTimeStep)
+		for i := 0; i < int(worldSteps); i++ {
+			world.update(float64(timeStep/worldSteps), GetInput())
+		}
 	}
 
 	return nil
@@ -61,9 +67,11 @@ func (g *Game) Update(screen *ebiten.Image) error {
 // Draw draws the game screen.
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (g *Game) Draw(screen *ebiten.Image) {
+	if !pause {
+		renderer.frameBuffer.resetFrameBuffer()
+	}
 	//renderer.draw2d(world, screen)
 	renderer.draw(world, screen)
-	renderer.frameBuffer.resetFrameBuffer()
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -82,49 +90,6 @@ func loadMap() Tilemap {
 	}
 
 	return data
-}
-
-func loadTextures() TextureManager {
-	var textureFiles []string
-	root := "textures" + string(os.PathSeparator)
-	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		if strings.Contains(path, ".png") {
-			textureFiles = append(textureFiles, path)
-		}
-		return nil
-	})
-	if err != nil {
-		panic(err)
-	}
-	textures := make(map[string]Texture)
-
-	for _, fileName := range textureFiles {
-		//fmt.Printf("%v\n", fileName)
-		file, err := os.Open(fileName)
-		if err != nil {
-			panic(err)
-		}
-
-		img, _, err := image.Decode(file)
-		if err != nil {
-			panic(err)
-		}
-		textureNameString := strings.Split(strings.ToLower(fileName), string(os.PathSeparator))[1]
-		textureNameParts := strings.Split(textureNameString, "_")
-		textureName := textureNameParts[1]
-		textureId := textureNameParts[0]
-
-		if img != nil {
-			texture := Texture{
-				name:     textureName,
-				category: GetTextureCategory(textureName),
-				image:    img,
-			}
-			textures[textureId] = texture
-		}
-	}
-
-	return TextureManager{textures: textures}
 }
 
 func GetInput() Input {
