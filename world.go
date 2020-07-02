@@ -1,37 +1,41 @@
 package main
 
+import "image/color"
+
 // World is a container for the world
 type World struct {
 	worldmap Tilemap
 	player   Player
 	monsters []Monster
+	effects  []Effect
 }
 
 // NewWorld creates a new World.
 func NewWorld(worldmap Tilemap) World {
 	var player Player
-	var monsters []Monster
-	for y := 0; y < worldmap.Height; y++ {
-		for x := 0; x < worldmap.Width; x++ {
-			position := Vector{float64(x) + 0.5, float64(y) + 0.5}
-			thing := worldmap.Things[y*worldmap.Width+x]
-			switch thing {
-			case 0:
-				break
-			case 1:
-				player = NewPlayer(position)
-				break
-			case 2:
-				monsters = append(monsters, NewMonster(position))
-				break
-			}
-		}
-	}
-	return World{worldmap, player, monsters}
+	world := World{worldmap, player, nil, nil}
+	world.reset()
+	return world
 }
 
 // update updates the World
 func (w *World) update(timeStep float64, input Input) {
+	// update effects
+	var effectsInProgress []Effect
+	for _, effect := range w.effects {
+		effect.time += timeStep
+		if !effect.isCompleted() {
+			effectsInProgress = append(effectsInProgress, effect)
+		}
+	}
+
+	w.effects = effectsInProgress
+
+	// update player
+	if w.player.isDead() {
+		w.reset()
+		return
+	}
 	w.player.direction = w.player.direction.rotated(input.rotation)
 	w.player.velocity = MultiplyVector(w.player.direction, input.speed*w.player.speed)
 	w.player.velocity.Multiply(timeStep)
@@ -40,7 +44,7 @@ func (w *World) update(timeStep float64, input Input) {
 	// update monsters
 	for i, _ := range w.monsters {
 		monster := w.monsters[i]
-		monster.update(*w)
+		monster.update(w)
 		monster.position.Add(MultiplyVector(monster.velocity, timeStep))
 		monster.animationTime += timeStep
 		w.monsters[i] = monster
@@ -93,4 +97,35 @@ func (w World) sprites(tm TextureManager) []Billboard {
 		result = append(result, NewBillBoard(start, spritePlane, 1, tm.animations[monster.animation].Texture(monster.animationTime)))
 	}
 	return result
+}
+
+func (w *World) hurtPlayer(damage float64) {
+	w.player.health -= damage
+	w.effects = append(w.effects, NewEffect(fadeIn, color.RGBA{
+		R: 255,
+		G: 0,
+		B: 0,
+		A: 191,
+	}, 0.2))
+}
+
+func (w *World) reset() {
+	w.monsters = w.monsters[:0]
+	w.effects = w.effects[:0]
+	for y := 0; y < w.worldmap.Height; y++ {
+		for x := 0; x < w.worldmap.Width; x++ {
+			position := Vector{float64(x) + 0.5, float64(y) + 0.5}
+			thing := w.worldmap.Things[y*w.worldmap.Width+x]
+			switch thing {
+			case 0:
+				break
+			case 1:
+				w.player = NewPlayer(position)
+				break
+			case 2:
+				w.monsters = append(w.monsters, NewMonster(position))
+				break
+			}
+		}
+	}
 }

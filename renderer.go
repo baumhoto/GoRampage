@@ -118,6 +118,12 @@ func (r *Renderer) draw(world World, screen *ebiten.Image) {
 
 		columnPosition.Add(step)
 	}
+
+	// Effects
+	for _, effect := range world.effects {
+		r.frameBuffer.tint(effect.color, 1-effect.progress())
+	}
+
 	screen.DrawImage(r.frameBuffer.ToImage(), nil)
 }
 

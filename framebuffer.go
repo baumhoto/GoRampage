@@ -90,18 +90,6 @@ func (fb *FrameBuffer) DrawLine(from, to Vector, color color.Color) {
 	}
 }
 
-func (fb *FrameBuffer) blendPixel(x, y int, newColor color.Color) {
-	oldR, oldG, oldB, _ := fb.ColorAt(x, y).RGBA()
-	newR, newG, newB, newA := newColor.RGBA()
-	inverseAlpha := 1 - float64(newA)/255
-	fb.SetColorAt(x, y, color.RGBA{
-		R: uint8(oldR*uint32(inverseAlpha) + newR),
-		G: uint8(oldG*uint32(inverseAlpha) + newG),
-		B: uint8(oldB*uint32(inverseAlpha) + newB),
-		A: 255,
-	})
-}
-
 func (fb *FrameBuffer) resetFrameBuffer() {
 	for index := range fb.pixels {
 		fb.pixels[index] = fb.backgroundColor
@@ -119,4 +107,33 @@ func (fb *FrameBuffer) ToImage() *ebiten.Image {
 	}
 
 	return fb.img
+}
+func (fb *FrameBuffer) blendPixel(x, y int, newColor color.Color) {
+	oldR, oldG, oldB, _ := fb.ColorAt(x, y).RGBA()
+	newR, newG, newB, newA := newColor.RGBA()
+	inverseAlpha := 1.0 - float64(uint8(newA))/255.0
+	fb.SetColorAt(x, y, color.RGBA{
+		R: uint8(float64(uint8(oldR))*inverseAlpha) + uint8(newR),
+		G: uint8(float64(uint8(oldG))*inverseAlpha) + uint8(newG),
+		B: uint8(float64(uint8(oldB))*inverseAlpha) + uint8(newB),
+		A: uint8(255),
+	})
+}
+
+func (fb *FrameBuffer) tint(tintColor color.Color, opacity float64) {
+	r, g, b, a := tintColor.RGBA()
+	alpha := math.Min(1.0, math.Max(0.0, float64(uint8(a))/255*opacity))
+	effectColor := color.RGBA{
+		uint8(float64(uint8(r)) * alpha),
+		uint8(float64(uint8(g)) * alpha),
+		uint8(float64(uint8(b)) * alpha),
+		uint8(uint8(alpha) * 255)}
+
+	//fmt.Printf("%v %v %v %v %v %v %v \n", r, g, b, a, effectColor, opacity, alpha)
+
+	for y := 0; y < fb.height; y++ {
+		for x := 0; x < fb.width; x++ {
+			fb.blendPixel(x, y, effectColor)
+		}
+	}
 }
