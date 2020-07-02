@@ -113,7 +113,7 @@ func (w *World) hurtPlayer(damage float64) {
 		A: 191,
 	}, 0.2))
 	if w.player.isDead() {
-		w.effects = append(w.effects, NewEffect(fadeOut, red, 2))
+		w.effects = append(w.effects, NewEffect(fizzleOut, red, 2))
 	}
 }
 

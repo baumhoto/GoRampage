@@ -3,18 +3,29 @@ package main
 import (
 	"github.com/hajimehoshi/ebiten"
 	"math"
+	"math/rand"
 	"sort"
+	"time"
 )
 
 // Renderer renders to the window
 type Renderer struct {
-	frameBuffer FrameBuffer
-	textures    TextureManager
+	frameBuffer  FrameBuffer
+	textures     TextureManager
+	fizzleBuffer []int
 }
 
 func NewRenderer(width int, height int, manager TextureManager) Renderer {
 	fb := NewFrameBuffer(width, height, black)
-	return Renderer{fb, manager}
+	fizzleBuffer := make([]int, 9999)
+	for i := range fizzleBuffer {
+		fizzleBuffer[i] = i
+	}
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(fizzleBuffer), func(i, j int) { fizzleBuffer[i], fizzleBuffer[j] = fizzleBuffer[j], fizzleBuffer[i] })
+	//fmt.Printf("%v/n", fizzleBuffer)
+
+	return Renderer{fb, manager, fizzleBuffer}
 }
 
 // draw renders the world into the window
@@ -126,6 +137,18 @@ func (r *Renderer) draw(world World, screen *ebiten.Image) {
 			r.frameBuffer.tint(effect.color, 1-effect.progress())
 		case fadeOut:
 			r.frameBuffer.tint(effect.color, effect.progress())
+		case fizzleOut:
+			threshold := int(effect.progress() * float64(len(r.fizzleBuffer)))
+			for y := 0; y < height; y++ {
+				for x := 0; x < width; x++ {
+					granularity := 2
+					index := y/granularity*width + x/granularity
+					fizzledIndex := r.fizzleBuffer[index%len(r.fizzleBuffer)]
+					if fizzledIndex <= threshold {
+						r.frameBuffer.SetColorAt(x, y, effect.color)
+					}
+				}
+			}
 		}
 	}
 

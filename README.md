@@ -7,7 +7,8 @@ Learning Go by following https://github.com/nicklockwood/RetroRampage and implem
 
 Switched to ebiten https://github.com/hajimehoshi/ebiten as it allows to more closely replicate the original raycast implementation.
 
-<img src="pictures/gorampage.png" alt="GoRampage">
+<img src="pictures/gorampage.png" alt="GoRampage Chapter 6">
+<img src="pictures/gorampage7.png" alt="GoRampage Chapter 7">
 
 ## Installation
 

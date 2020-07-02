@@ -10,6 +10,7 @@ type EffectType int
 const (
 	fadeIn EffectType = iota
 	fadeOut
+	fizzleOut
 )
 
 type Effect struct {
@@ -39,6 +40,8 @@ func (e Effect) progress() float64 {
 		return easeIn(t)
 	case fadeOut:
 		return easeOut(t)
+	case fizzleOut:
+		return easeInEaseOut(t)
 	default:
 		return t
 	}
