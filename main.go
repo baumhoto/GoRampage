@@ -2,7 +2,7 @@ package main
 
 import (
 	_asset "github.com/baumhoto/go-rampage/engine/asset"
-	_common "github.com/baumhoto/go-rampage/engine/common"
+	_const "github.com/baumhoto/go-rampage/engine/consts"
 	_entity "github.com/baumhoto/go-rampage/engine/entity"
 	_input "github.com/baumhoto/go-rampage/engine/input"
 	_map "github.com/baumhoto/go-rampage/engine/map"
@@ -30,9 +30,9 @@ var pause bool
 func main() {
 	textureManager = _asset.GetInstance()
 	world = _entity.NewWorld(_map.LoadMap())
-	renderer = _render.NewRenderer(_common.SCREEN_WIDTH, _common.SCREEN_HEIGHT, *textureManager)
+	renderer = _render.NewRenderer(_const.SCREEN_WIDTH, _const.SCREEN_HEIGHT, *textureManager)
 	game := &Game{}
-	ebiten.SetWindowSize(_common.SCREEN_WIDTH*_common.SCREEN_SCALE, _common.SCREEN_HEIGHT*_common.SCREEN_SCALE)
+	ebiten.SetWindowSize(_const.SCREEN_WIDTH*_const.SCREEN_SCALE, _const.SCREEN_HEIGHT*_const.SCREEN_SCALE)
 	ebiten.SetWindowTitle("GoRampage")
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
@@ -51,9 +51,9 @@ func (g *Game) Update(screen *ebiten.Image) error {
 	}
 
 	if !pause {
-		worldSteps := math.Ceil(_common.TIMESTEP / _common.WORLD_TIMESTEP)
+		worldSteps := math.Ceil(_const.TIMESTEP / _const.WORLD_TIMESTEP)
 		for i := 0; i < int(worldSteps); i++ {
-			world.Update(_common.TIMESTEP/worldSteps, _input.GetInput(world.Player.TurningSpeed))
+			world.Update(_const.TIMESTEP/worldSteps, _input.GetInput(world.Player.TurningSpeed))
 		}
 	}
 
@@ -71,5 +71,5 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return _common.SCREEN_WIDTH, _common.SCREEN_HEIGHT
+	return _const.SCREEN_WIDTH, _const.SCREEN_HEIGHT
 }

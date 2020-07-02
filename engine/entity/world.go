@@ -3,6 +3,7 @@ package entity
 import (
 	_asset "github.com/baumhoto/go-rampage/engine/asset"
 	_common "github.com/baumhoto/go-rampage/engine/common"
+	_const "github.com/baumhoto/go-rampage/engine/consts"
 	_input "github.com/baumhoto/go-rampage/engine/input"
 	_map "github.com/baumhoto/go-rampage/engine/map"
 	"image/color"
@@ -45,7 +46,7 @@ func (w *World) Update(timeStep float64, input _input.Input) {
 		w.Player.Position.Add(w.Player.velocity)
 	} else if len(w.Effects) == 0 {
 		w.reset()
-		w.Effects = append(w.Effects, _asset.NewEffect(_asset.FadeIn, _common.Red, 0.5))
+		w.Effects = append(w.Effects, _asset.NewEffect(_asset.FadeIn, _const.RED, 0.5))
 		return
 	}
 
@@ -121,7 +122,7 @@ func (w *World) hurtPlayer(damage float64) {
 	}, 0.2))
 	if w.Player.isDead() {
 		w.Effects = append(w.Effects,
-			_asset.NewEffect(_asset.FizzleOut, _common.Red, 2))
+			_asset.NewEffect(_asset.FizzleOut, _const.RED, 2))
 	}
 }
 

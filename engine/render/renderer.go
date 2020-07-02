@@ -3,6 +3,7 @@ package render
 import (
 	_asset "github.com/baumhoto/go-rampage/engine/asset"
 	_common "github.com/baumhoto/go-rampage/engine/common"
+	_const "github.com/baumhoto/go-rampage/engine/consts"
 	_entity "github.com/baumhoto/go-rampage/engine/entity"
 	_map "github.com/baumhoto/go-rampage/engine/map"
 	"github.com/hajimehoshi/ebiten"
@@ -20,7 +21,7 @@ type Renderer struct {
 }
 
 func NewRenderer(width int, height int, manager _asset.TextureManager) Renderer {
-	fb := NewFrameBuffer(width, height, _common.Black)
+	fb := NewFrameBuffer(width, height, _const.BLACK)
 	fizzleBuffer := make([]int, 9999)
 	for i := range fizzleBuffer {
 		fizzleBuffer[i] = i
@@ -169,7 +170,7 @@ func (r *Renderer) Draw2d(world _entity.World, screen *ebiten.Image) {
 			if world.Worldmap.GetTile(x, y).IsWall() {
 				rect := _common.Rect{_common.Vector{float64(x) * scale, float64(y) * scale},
 					_common.Vector{float64((x + 1)) * scale, float64((y + 1)) * scale}}
-				r.frameBuffer.Fill(rect, _common.White)
+				r.frameBuffer.Fill(rect, _const.WHITE)
 			}
 		}
 	}
@@ -178,7 +179,7 @@ func (r *Renderer) Draw2d(world _entity.World, screen *ebiten.Image) {
 	rect := world.Player.Rect()
 	rect.Min.Multiply(scale)
 	rect.Max.Multiply(scale)
-	r.frameBuffer.Fill(rect, _common.Blue)
+	r.frameBuffer.Fill(rect, _const.BLUE)
 
 	// Draw view plane
 	focalLength := 1.0
@@ -191,7 +192,7 @@ func (r *Renderer) Draw2d(world _entity.World, screen *ebiten.Image) {
 	viewStart = _common.SubstractVectors(viewCenter, viewStart)
 	viewEnd := _common.AddVectors(viewStart, viewPlane)
 	viewEnd.Multiply(scale)
-	r.frameBuffer.DrawLine(_common.MultiplyVector(viewStart, scale), viewEnd, _common.Red)
+	r.frameBuffer.DrawLine(_common.MultiplyVector(viewStart, scale), viewEnd, _const.RED)
 
 	// Cast rays
 	columns := 10.0
@@ -215,12 +216,12 @@ func (r *Renderer) Draw2d(world _entity.World, screen *ebiten.Image) {
 		}
 		start := _common.MultiplyVector(ray.Origin, scale)
 		end.Multiply(scale)
-		r.frameBuffer.DrawLine(start, end, _common.Green)
+		r.frameBuffer.DrawLine(start, end, _const.GREEN)
 		columnPosition.Add(step)
 	}
 
 	for _, line := range world.Sprites(r.textures) {
-		r.frameBuffer.DrawLine(_common.MultiplyVector(line.Start, scale), _common.MultiplyVector(line.End, scale), _common.Green)
+		r.frameBuffer.DrawLine(_common.MultiplyVector(line.Start, scale), _common.MultiplyVector(line.End, scale), _const.GREEN)
 	}
 
 	screen.DrawImage(r.frameBuffer.ToImage(), nil)

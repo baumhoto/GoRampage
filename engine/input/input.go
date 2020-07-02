@@ -2,6 +2,7 @@ package input
 
 import (
 	_common "github.com/baumhoto/go-rampage/engine/common"
+	_const "github.com/baumhoto/go-rampage/engine/consts"
 	"github.com/hajimehoshi/ebiten"
 	"math"
 )
@@ -26,7 +27,7 @@ func GetInput(playerTurningSpeed float64) Input {
 		inputVector.X = velocity
 	}
 
-	rotation := inputVector.X * playerTurningSpeed * _common.WORLD_TIMESTEP
+	rotation := inputVector.X * playerTurningSpeed * _const.WORLD_TIMESTEP
 
 	return Input{
 		Speed:    -inputVector.Y,
