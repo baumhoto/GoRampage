@@ -1,4 +1,4 @@
-package main
+package entity
 
 type Thing int
 

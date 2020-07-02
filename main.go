@@ -1,42 +1,38 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
+	_asset "github.com/baumhoto/go-rampage/engine/asset"
+	_common "github.com/baumhoto/go-rampage/engine/common"
+	_entity "github.com/baumhoto/go-rampage/engine/entity"
+	_input "github.com/baumhoto/go-rampage/engine/input"
+	_map "github.com/baumhoto/go-rampage/engine/map"
+	_render "github.com/baumhoto/go-rampage/engine/render"
+	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/inpututil"
 	_ "image/png"
-	"io/ioutil"
 	"log"
 	"math"
 	"os"
 	"time"
-
-	"github.com/hajimehoshi/ebiten"
 )
 
 type Game struct{}
 
-var world World
+var world _entity.World
 var lastRenderFinishedTime time.Time
-var renderer Renderer
+var renderer _render.Renderer
 var fullScreen bool
-var textureManager *TextureManager
+var textureManager *_asset.TextureManager
 var pause bool
 
 // TODO make frametime available from underlying window
-const timeStep = 1.0 / 60.0
-const maximumTimeStep = 1.0 / 20.0
-const worldTimeStep = 1.0 / 120.0
-const screenwidth = 320
-const screenheight = 240
-const screenscale = 2
 
 func main() {
-	textureManager = GetInstance()
-	world = NewWorld(loadMap())
-	renderer = NewRenderer(screenwidth, screenheight, *textureManager)
+	textureManager = _asset.GetInstance()
+	world = _entity.NewWorld(_map.LoadMap())
+	renderer = _render.NewRenderer(_common.SCREEN_WIDTH, _common.SCREEN_HEIGHT, *textureManager)
 	game := &Game{}
-	ebiten.SetWindowSize(screenwidth*screenscale, screenheight*screenscale)
+	ebiten.SetWindowSize(_common.SCREEN_WIDTH*_common.SCREEN_SCALE, _common.SCREEN_HEIGHT*_common.SCREEN_SCALE)
 	ebiten.SetWindowTitle("GoRampage")
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
@@ -55,9 +51,9 @@ func (g *Game) Update(screen *ebiten.Image) error {
 	}
 
 	if !pause {
-		worldSteps := math.Ceil(timeStep / worldTimeStep)
+		worldSteps := math.Ceil(_common.TIMESTEP / _common.WORLD_TIMESTEP)
 		for i := 0; i < int(worldSteps); i++ {
-			world.update(float64(timeStep/worldSteps), GetInput())
+			world.Update(_common.TIMESTEP/worldSteps, _input.GetInput(world.Player.TurningSpeed))
 		}
 	}
 
@@ -68,49 +64,12 @@ func (g *Game) Update(screen *ebiten.Image) error {
 // Draw is called every frame (typically 1/60[s] for 60Hz display).
 func (g *Game) Draw(screen *ebiten.Image) {
 	if !pause {
-		renderer.frameBuffer.resetFrameBuffer()
+		renderer.ResetFrameBuffer()
 	}
-	//renderer.draw2d(world, screen)
-	renderer.draw(world, screen)
+	//renderer.Draw2d(world, screen)
+	renderer.Draw(world, screen)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return screenwidth, screenheight
-}
-
-func loadMap() Tilemap {
-	file, _ := ioutil.ReadFile("map.json")
-
-	data := Tilemap{}
-
-	err := json.Unmarshal([]byte(file), &data)
-	if err != nil {
-		fmt.Printf("%v\n", err)
-		return Tilemap{}
-	}
-
-	return data
-}
-
-func GetInput() Input {
-	inputVector := Vector{}
-	velocity := float64(1)
-
-	if ebiten.IsKeyPressed(ebiten.KeyDown) {
-		inputVector.y = velocity
-	} else if ebiten.IsKeyPressed(ebiten.KeyUp) {
-		inputVector.y = velocity * -1
-	}
-	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
-		inputVector.x = velocity * -1
-	} else if ebiten.IsKeyPressed(ebiten.KeyRight) {
-		inputVector.x = velocity
-	}
-
-	rotation := inputVector.x * world.player.turningSpeed * worldTimeStep
-
-	return Input{
-		speed:    -inputVector.y,
-		rotation: NewRotation(math.Sin(rotation), math.Cos(rotation)),
-	}
+	return _common.SCREEN_WIDTH, _common.SCREEN_HEIGHT
 }

@@ -1,6 +1,7 @@
-package main
+package asset
 
 import (
+	_map "github.com/baumhoto/go-rampage/engine/map"
 	"image"
 	"image/color"
 	"os"
@@ -16,7 +17,7 @@ var instance TextureManager
 
 type TextureManager struct {
 	textures   map[string]Texture
-	animations map[string]Animation
+	Animations map[string]Animation
 }
 
 func GetInstance() *TextureManager {
@@ -27,7 +28,7 @@ func GetInstance() *TextureManager {
 	return &instance
 }
 
-func (tm TextureManager) GetWallTextureByTile(tile Tile, isVertical bool) Texture {
+func (tm TextureManager) GetWallTextureByTile(tile _map.Tile, isVertical bool) Texture {
 	searchId := strconv.Itoa(int(tile))
 	if isVertical {
 		searchId = searchId + "v"
@@ -35,7 +36,7 @@ func (tm TextureManager) GetWallTextureByTile(tile Tile, isVertical bool) Textur
 	return tm.textures[searchId]
 }
 
-func (tm TextureManager) GetFloorCeilingTextureByTile(tile Tile, isCeiling bool) Texture {
+func (tm TextureManager) GetFloorCeilingTextureByTile(tile _map.Tile, isCeiling bool) Texture {
 	searchId := strconv.Itoa(int(tile))
 
 	if tile == 4 && isCeiling {
@@ -48,7 +49,7 @@ func (tm TextureManager) GetFloorCeilingTextureByTile(tile Tile, isCeiling bool)
 
 	result := tm.textures[searchId]
 
-	if result.image == nil {
+	if result.Image == nil {
 		result = tm.GetWallTextureByTile(tile, isCeiling)
 	}
 
@@ -56,13 +57,13 @@ func (tm TextureManager) GetFloorCeilingTextureByTile(tile Tile, isCeiling bool)
 }
 
 func (tm *TextureManager) initAnimations() {
-	tm.animations = make(map[string]Animation, 2)
-	tm.animations[MonsterIdleAnimation] = Animation{
+	tm.Animations = make(map[string]Animation, 2)
+	tm.Animations[MonsterIdleAnimation] = Animation{
 		frames:   []Texture{tm.textures["5"]},
 		duration: 0,
 	}
 
-	tm.animations[MonsterWalkAnimation] = Animation{
+	tm.Animations[MonsterWalkAnimation] = Animation{
 		frames: []Texture{
 			tm.textures["5aw1"],
 			tm.textures["5"],
@@ -71,7 +72,7 @@ func (tm *TextureManager) initAnimations() {
 		duration: 0.5,
 	}
 
-	tm.animations[MonsterScratchAnimation] = Animation{
+	tm.Animations[MonsterScratchAnimation] = Animation{
 		frames: []Texture{
 			tm.textures["5as1"],
 			tm.textures["5as2"],
@@ -97,23 +98,23 @@ func GetTextureCategory(textureName string) int {
 type Texture struct {
 	name     string
 	category int
-	image    image.Image
+	Image    image.Image
 }
 
 func (t Texture) GetColorAt(x, y int) color.Color {
-	return t.image.At(x, y)
+	return t.Image.At(x, y)
 }
 
 func (t Texture) GetColorAtNormalized(x, y float64) color.Color {
-	return t.image.At(int(x*float64(t.Width())), int(y*float64(t.Height())))
+	return t.Image.At(int(x*float64(t.Width())), int(y*float64(t.Height())))
 }
 
 func (t Texture) Width() int {
-	return t.image.Bounds().Size().X
+	return t.Image.Bounds().Size().X
 }
 
 func (t Texture) Height() int {
-	return t.image.Bounds().Size().Y
+	return t.Image.Bounds().Size().Y
 }
 
 func loadTextures() map[string]Texture {
@@ -150,7 +151,7 @@ func loadTextures() map[string]Texture {
 			texture := Texture{
 				name:     textureName,
 				category: GetTextureCategory(textureName),
-				image:    img,
+				Image:    img,
 			}
 			textures[textureId] = texture
 		}

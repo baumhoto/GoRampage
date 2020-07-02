@@ -1,6 +1,8 @@
-package main
+package render
 
 import (
+	_asset "github.com/baumhoto/go-rampage/engine/asset"
+	_common "github.com/baumhoto/go-rampage/engine/common"
 	"github.com/hajimehoshi/ebiten"
 	"image/color"
 	"math"
@@ -36,50 +38,50 @@ func (fb FrameBuffer) ColorAt(x int, y int) color.Color {
 }
 
 // Fill draws an Rect with Color c in the FrameBuffer
-func (fb *FrameBuffer) Fill(rect Rect, c color.Color) {
-	for i := rect.min.y; i < rect.max.y; i++ {
-		for j := rect.min.x; j < rect.max.x; j++ {
+func (fb *FrameBuffer) Fill(rect _common.Rect, c color.Color) {
+	for i := rect.Min.Y; i < rect.Max.Y; i++ {
+		for j := rect.Min.X; j < rect.Max.X; j++ {
 			fb.SetColorAt(int(j), int(i), c)
 		}
 	}
 }
 
-func (fb *FrameBuffer) drawColumn(sourceX int, source Texture, atPoint Vector, height float64, windowHeight int) {
-	start := int(atPoint.y)
-	end := int(math.Ceil(atPoint.y + height))
+func (fb *FrameBuffer) drawColumn(sourceX int, source _asset.Texture, atPoint _common.Vector, height float64, windowHeight int) {
+	start := int(atPoint.Y)
+	end := int(math.Ceil(atPoint.Y + height))
 
-	stepY := float64(source.image.Bounds().Size().Y) / height
+	stepY := float64(source.Image.Bounds().Size().Y) / height
 	for y := math.Max(0.0, float64(start)); y < math.Min(float64(windowHeight), float64(end)); y++ {
-		sourceY := math.Max(0, y-atPoint.y) * stepY
+		sourceY := math.Max(0, y-atPoint.Y) * stepY
 		sourceColor := source.GetColorAt(sourceX, int(sourceY))
-		fb.blendPixel(int(atPoint.x), int(y), sourceColor)
+		fb.blendPixel(int(atPoint.X), int(y), sourceColor)
 	}
 }
 
-func (fb *FrameBuffer) DrawLine(from, to Vector, color color.Color) {
-	difference := SubstractVectors(to, from)
+func (fb *FrameBuffer) DrawLine(from, to _common.Vector, color color.Color) {
+	difference := _common.SubstractVectors(to, from)
 	var stepCount int
 	sign := -1.0
-	var step Vector
-	if math.Abs(difference.x) > math.Abs(difference.y) {
-		stepCount = int(math.Ceil(math.Abs(difference.x)))
-		if difference.x > 0 {
+	var step _common.Vector
+	if math.Abs(difference.X) > math.Abs(difference.Y) {
+		stepCount = int(math.Ceil(math.Abs(difference.X)))
+		if difference.X > 0 {
 			sign = 1.0
 		}
-		step = Vector{1, difference.y / difference.x}
+		step = _common.Vector{1, difference.Y / difference.X}
 	} else {
-		stepCount = int(math.Ceil(math.Abs(difference.y)))
-		if difference.y > 0 {
+		stepCount = int(math.Ceil(math.Abs(difference.Y)))
+		if difference.Y > 0 {
 			sign = 1.0
 		}
-		step = Vector{difference.x / difference.y, 1}
+		step = _common.Vector{difference.X / difference.Y, 1}
 	}
 	step.Multiply(sign)
 
 	point := from
 
 	for i := 0; i < stepCount; i++ {
-		fb.SetColorAt(int(point.x), int(point.y), color)
+		fb.SetColorAt(int(point.X), int(point.Y), color)
 		point.Add(step)
 	}
 }

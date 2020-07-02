@@ -1,71 +1,71 @@
-package main
+package common
 
 import "math"
 
 // Vector is a 2D-Vector
 type Vector struct {
-	x, y float64
+	X, Y float64
 }
 
 // Add Vector
 func (v *Vector) Add(add Vector) {
-	v.x = v.x + add.x
-	v.y = v.y + add.y
+	v.X = v.X + add.X
+	v.Y = v.Y + add.Y
 }
 
 // Substract Vectors
 func (v *Vector) Substract(substract Vector) *Vector {
-	v.x -= substract.x
-	v.y -= substract.y
+	v.X -= substract.X
+	v.Y -= substract.Y
 	return v
 }
 
 // Multiply Vector
 func (v *Vector) Multiply(multiplier float64) *Vector {
-	v.x *= multiplier
-	v.y *= multiplier
+	v.X *= multiplier
+	v.Y *= multiplier
 	return v
 }
 
 // Divide Vector
 func (v *Vector) Divide(divisor float64) *Vector {
-	v.x /= divisor
-	v.y /= divisor
+	v.X /= divisor
+	v.Y /= divisor
 	return v
 }
 
 // rotated returns a new Vector with the rotation applied
-func (v Vector) rotated(rotation Rotation) Vector {
-	return Vector{v.x*rotation.m1 + v.y*rotation.m2,
-		v.x*rotation.m3 + v.y*rotation.m4}
+func (v Vector) Rotated(rotation Rotation) Vector {
+	return Vector{v.X*rotation.m1 + v.Y*rotation.m2,
+		v.X*rotation.m3 + v.Y*rotation.m4}
 }
 
 // length returns the length of the vector
-func (v Vector) length() float64 {
-	return math.Sqrt(v.x*v.x + v.y*v.y)
+func (v Vector) Length() float64 {
+	return math.Sqrt(v.X*v.X + v.Y*v.Y)
 }
 
 // orthogonal returns the orthogonal vector
-func (v Vector) orthogonal() Vector {
-	return Vector{-v.y, v.x}
+func (v Vector) Orthogonal() Vector {
+	return Vector{-v.Y, v.X}
 }
 
 // AddVectors adds 2 Vectors returning a new Vector
 func AddVectors(a Vector, b Vector) Vector {
-	return Vector{a.x + b.x, a.y + b.y}
+	return Vector{a.X + b.X, a.Y + b.Y}
 }
 
 // SubstractVectors substracts 2 Vectors returning a new Vector
 func SubstractVectors(a Vector, b Vector) Vector {
-	return Vector{a.x - b.x, a.y - b.y}
+	return Vector{a.X - b.X, a.Y - b.Y}
 }
 
 // MultiplyVector multiplies a Vector with a multiplier
 func MultiplyVector(a Vector, multiplier float64) Vector {
-	return Vector{a.x * multiplier, a.y * multiplier}
+	return Vector{a.X * multiplier, a.Y * multiplier}
 }
 
 // DivideVector divides a Vector with a divisor
 func DivideVector(a Vector, divisor float64) Vector {
-	return Vector{a.x / divisor, a.y / divisor}
+	return Vector{a.X / divisor, a.Y / divisor}
 }
