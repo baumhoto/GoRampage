@@ -20,8 +20,8 @@ type Renderer struct {
 	fizzleBuffer []int
 }
 
-func NewRenderer(width int, height int, manager _asset.TextureManager) Renderer {
-	fb := NewFrameBuffer(width, height, _const.BLACK)
+func NewRenderer() Renderer {
+	fb := NewFrameBuffer(_const.SCREEN_WIDTH, _const.SCREEN_HEIGHT, _const.BLACK)
 	fizzleBuffer := make([]int, 9999)
 	for i := range fizzleBuffer {
 		fizzleBuffer[i] = i
@@ -30,7 +30,7 @@ func NewRenderer(width int, height int, manager _asset.TextureManager) Renderer 
 	rand.Shuffle(len(fizzleBuffer), func(i, j int) { fizzleBuffer[i], fizzleBuffer[j] = fizzleBuffer[j], fizzleBuffer[i] })
 	//fmt.Printf("%v/n", fizzleBuffer)
 
-	return Renderer{fb, manager, fizzleBuffer}
+	return Renderer{fb, *_asset.NewTextureManager(), fizzleBuffer}
 }
 
 // draw renders the world into the window
@@ -138,11 +138,11 @@ func (r *Renderer) Draw(world _entity.World, screen *ebiten.Image) {
 	// Effects
 	for _, effect := range world.Effects {
 		switch effect.EffectType {
-		case _asset.FadeIn:
+		case _entity.FadeIn:
 			r.frameBuffer.tint(effect.Color, 1-effect.Progress())
-		case _asset.FadeOut:
+		case _entity.FadeOut:
 			r.frameBuffer.tint(effect.Color, effect.Progress())
-		case _asset.FizzleOut:
+		case _entity.FizzleOut:
 			threshold := int(effect.Progress() * float64(len(r.fizzleBuffer)))
 			for y := 0; y < height; y++ {
 				for x := 0; x < width; x++ {

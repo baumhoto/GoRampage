@@ -1,11 +1,9 @@
 package main
 
 import (
-	_asset "github.com/baumhoto/go-rampage/engine/asset"
 	_const "github.com/baumhoto/go-rampage/engine/consts"
 	_entity "github.com/baumhoto/go-rampage/engine/entity"
 	_input "github.com/baumhoto/go-rampage/engine/input"
-	_map "github.com/baumhoto/go-rampage/engine/map"
 	_render "github.com/baumhoto/go-rampage/engine/render"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/inpututil"
@@ -16,21 +14,18 @@ import (
 	"time"
 )
 
-type Game struct{}
+type Game struct {
+}
 
 var world _entity.World
 var lastRenderFinishedTime time.Time
 var renderer _render.Renderer
 var fullScreen bool
-var textureManager *_asset.TextureManager
 var pause bool
 
-// TODO make frametime available from underlying window
-
 func main() {
-	textureManager = _asset.GetInstance()
-	world = _entity.NewWorld(_map.LoadMap())
-	renderer = _render.NewRenderer(_const.SCREEN_WIDTH, _const.SCREEN_HEIGHT, *textureManager)
+	world = _entity.NewWorld()
+	renderer = _render.NewRenderer()
 	game := &Game{}
 	ebiten.SetWindowSize(_const.SCREEN_WIDTH*_const.SCREEN_SCALE, _const.SCREEN_HEIGHT*_const.SCREEN_SCALE)
 	ebiten.SetWindowTitle("GoRampage")

@@ -1,4 +1,4 @@
-package asset
+package entity
 
 import (
 	"github.com/baumhoto/go-rampage/engine/common"

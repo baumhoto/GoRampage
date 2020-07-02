@@ -14,13 +14,13 @@ type World struct {
 	Worldmap _map.Tilemap
 	Player   Player
 	Monsters []Monster
-	Effects  []_asset.Effect
+	Effects  []Effect
 }
 
 // NewWorld creates a new World.
-func NewWorld(worldmap _map.Tilemap) World {
+func NewWorld() World {
 	var player Player
-	world := World{worldmap, player, nil, nil}
+	world := World{_map.LoadMap(), player, nil, nil}
 	world.reset()
 	return world
 }
@@ -28,7 +28,7 @@ func NewWorld(worldmap _map.Tilemap) World {
 // update updates the World
 func (w *World) Update(timeStep float64, input _input.Input) {
 	// update effects
-	var effectsInProgress []_asset.Effect
+	var effectsInProgress []Effect
 	for _, effect := range w.Effects {
 		effect.Time += timeStep
 		if !effect.IsCompleted() {
@@ -46,7 +46,7 @@ func (w *World) Update(timeStep float64, input _input.Input) {
 		w.Player.Position.Add(w.Player.velocity)
 	} else if len(w.Effects) == 0 {
 		w.reset()
-		w.Effects = append(w.Effects, _asset.NewEffect(_asset.FadeIn, _const.RED, 0.5))
+		w.Effects = append(w.Effects, NewEffect(FadeIn, _const.RED, 0.5))
 		return
 	}
 
@@ -114,7 +114,7 @@ func (w *World) hurtPlayer(damage float64) {
 		return
 	}
 	w.Player.health -= damage
-	w.Effects = append(w.Effects, _asset.NewEffect(_asset.FadeIn, color.RGBA{
+	w.Effects = append(w.Effects, NewEffect(FadeIn, color.RGBA{
 		R: 255,
 		G: 0,
 		B: 0,
@@ -122,7 +122,7 @@ func (w *World) hurtPlayer(damage float64) {
 	}, 0.2))
 	if w.Player.isDead() {
 		w.Effects = append(w.Effects,
-			_asset.NewEffect(_asset.FizzleOut, _const.RED, 2))
+			NewEffect(FizzleOut, _const.RED, 2))
 	}
 }
 
@@ -131,7 +131,7 @@ func (w *World) reset() {
 	w.Effects = w.Effects[:0]
 	for y := 0; y < w.Worldmap.Height; y++ {
 		for x := 0; x < w.Worldmap.Width; x++ {
-			position := _common.Vector{float64(x) + 0.5, float64(y) + 0.5}
+			position := _common.Vector{X: float64(x) + 0.5, Y: float64(y) + 0.5}
 			thing := w.Worldmap.Things[y*w.Worldmap.Width+x]
 			switch thing {
 			case 0:
