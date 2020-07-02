@@ -1,4 +1,4 @@
-package common
+package core
 
 // Rect is a Rectangle
 type Rect struct {

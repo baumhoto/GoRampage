@@ -1,7 +1,7 @@
 package main
 
 import (
-	_const "github.com/baumhoto/go-rampage/engine/consts"
+	_consts "github.com/baumhoto/go-rampage/engine/consts"
 	_entity "github.com/baumhoto/go-rampage/engine/entity"
 	_input "github.com/baumhoto/go-rampage/engine/input"
 	_render "github.com/baumhoto/go-rampage/engine/render"
@@ -27,7 +27,7 @@ func main() {
 	world = _entity.NewWorld()
 	renderer = _render.NewRenderer()
 	game := &Game{}
-	ebiten.SetWindowSize(_const.SCREEN_WIDTH*_const.SCREEN_SCALE, _const.SCREEN_HEIGHT*_const.SCREEN_SCALE)
+	ebiten.SetWindowSize(_consts.SCREEN_WIDTH*_consts.SCREEN_SCALE, _consts.SCREEN_HEIGHT*_consts.SCREEN_SCALE)
 	ebiten.SetWindowTitle("GoRampage")
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
@@ -46,9 +46,9 @@ func (g *Game) Update(screen *ebiten.Image) error {
 	}
 
 	if !pause {
-		worldSteps := math.Ceil(_const.TIMESTEP / _const.WORLD_TIMESTEP)
+		worldSteps := math.Ceil(_consts.TIMESTEP / _consts.WORLD_TIMESTEP)
 		for i := 0; i < int(worldSteps); i++ {
-			world.Update(_const.TIMESTEP/worldSteps, _input.GetInput(world.Player.TurningSpeed))
+			world.Update(_consts.TIMESTEP/worldSteps, _input.GetInput(world.Player.TurningSpeed))
 		}
 	}
 
@@ -66,5 +66,5 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return _const.SCREEN_WIDTH, _const.SCREEN_HEIGHT
+	return _consts.SCREEN_WIDTH, _consts.SCREEN_HEIGHT
 }

@@ -2,7 +2,7 @@ package render
 
 import (
 	_asset "github.com/baumhoto/go-rampage/engine/asset"
-	_common "github.com/baumhoto/go-rampage/engine/common"
+	_core "github.com/baumhoto/go-rampage/engine/core"
 	"github.com/hajimehoshi/ebiten"
 	"image/color"
 	"math"
@@ -38,7 +38,7 @@ func (fb FrameBuffer) ColorAt(x int, y int) color.Color {
 }
 
 // Fill draws an Rect with Color c in the FrameBuffer
-func (fb *FrameBuffer) Fill(rect _common.Rect, c color.Color) {
+func (fb *FrameBuffer) Fill(rect _core.Rect, c color.Color) {
 	for i := rect.Min.Y; i < rect.Max.Y; i++ {
 		for j := rect.Min.X; j < rect.Max.X; j++ {
 			fb.SetColorAt(int(j), int(i), c)
@@ -46,7 +46,7 @@ func (fb *FrameBuffer) Fill(rect _common.Rect, c color.Color) {
 	}
 }
 
-func (fb *FrameBuffer) drawColumn(sourceX int, source _asset.Texture, atPoint _common.Vector, height float64, windowHeight int) {
+func (fb *FrameBuffer) drawColumn(sourceX int, source _asset.Texture, atPoint _core.Vector, height float64, windowHeight int) {
 	start := int(atPoint.Y)
 	end := int(math.Ceil(atPoint.Y + height))
 
@@ -58,23 +58,23 @@ func (fb *FrameBuffer) drawColumn(sourceX int, source _asset.Texture, atPoint _c
 	}
 }
 
-func (fb *FrameBuffer) DrawLine(from, to _common.Vector, color color.Color) {
-	difference := _common.SubstractVectors(to, from)
+func (fb *FrameBuffer) DrawLine(from, to _core.Vector, color color.Color) {
+	difference := _core.SubstractVectors(to, from)
 	var stepCount int
 	sign := -1.0
-	var step _common.Vector
+	var step _core.Vector
 	if math.Abs(difference.X) > math.Abs(difference.Y) {
 		stepCount = int(math.Ceil(math.Abs(difference.X)))
 		if difference.X > 0 {
 			sign = 1.0
 		}
-		step = _common.Vector{1, difference.Y / difference.X}
+		step = _core.Vector{1, difference.Y / difference.X}
 	} else {
 		stepCount = int(math.Ceil(math.Abs(difference.Y)))
 		if difference.Y > 0 {
 			sign = 1.0
 		}
-		step = _common.Vector{difference.X / difference.Y, 1}
+		step = _core.Vector{difference.X / difference.Y, 1}
 	}
 	step.Multiply(sign)
 

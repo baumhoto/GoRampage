@@ -1,19 +1,19 @@
 package input
 
 import (
-	_common "github.com/baumhoto/go-rampage/engine/common"
-	_const "github.com/baumhoto/go-rampage/engine/consts"
+	_consts "github.com/baumhoto/go-rampage/engine/consts"
+	_core "github.com/baumhoto/go-rampage/engine/core"
 	"github.com/hajimehoshi/ebiten"
 	"math"
 )
 
 type Input struct {
 	Speed    float64
-	Rotation _common.Rotation
+	Rotation _core.Rotation
 }
 
 func GetInput(playerTurningSpeed float64) Input {
-	inputVector := _common.Vector{}
+	inputVector := _core.Vector{}
 	velocity := float64(1)
 
 	if ebiten.IsKeyPressed(ebiten.KeyDown) {
@@ -27,10 +27,10 @@ func GetInput(playerTurningSpeed float64) Input {
 		inputVector.X = velocity
 	}
 
-	rotation := inputVector.X * playerTurningSpeed * _const.WORLD_TIMESTEP
+	rotation := inputVector.X * playerTurningSpeed * _consts.WORLD_TIMESTEP
 
 	return Input{
 		Speed:    -inputVector.Y,
-		Rotation: _common.NewRotation(math.Sin(rotation), math.Cos(rotation)),
+		Rotation: _core.NewRotation(math.Sin(rotation), math.Cos(rotation)),
 	}
 }

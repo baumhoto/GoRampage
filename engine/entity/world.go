@@ -2,8 +2,8 @@ package entity
 
 import (
 	_asset "github.com/baumhoto/go-rampage/engine/asset"
-	_common "github.com/baumhoto/go-rampage/engine/common"
-	_const "github.com/baumhoto/go-rampage/engine/consts"
+	_consts "github.com/baumhoto/go-rampage/engine/consts"
+	_core "github.com/baumhoto/go-rampage/engine/core"
 	_input "github.com/baumhoto/go-rampage/engine/input"
 	_map "github.com/baumhoto/go-rampage/engine/map"
 	"image/color"
@@ -41,12 +41,12 @@ func (w *World) Update(timeStep float64, input _input.Input) {
 	// update player
 	if !w.Player.isDead() {
 		w.Player.Direction = w.Player.Direction.Rotated(input.Rotation)
-		w.Player.velocity = _common.MultiplyVector(w.Player.Direction, input.Speed*w.Player.speed)
+		w.Player.velocity = _core.MultiplyVector(w.Player.Direction, input.Speed*w.Player.speed)
 		w.Player.velocity.Multiply(timeStep)
 		w.Player.Position.Add(w.Player.velocity)
 	} else if len(w.Effects) == 0 {
 		w.reset()
-		w.Effects = append(w.Effects, NewEffect(FadeIn, _const.RED, 0.5))
+		w.Effects = append(w.Effects, NewEffect(FadeIn, _consts.RED, 0.5))
 		return
 	}
 
@@ -54,7 +54,7 @@ func (w *World) Update(timeStep float64, input _input.Input) {
 	for i, _ := range w.Monsters {
 		monster := w.Monsters[i]
 		monster.update(w)
-		monster.position.Add(_common.MultiplyVector(monster.velocity, timeStep))
+		monster.position.Add(_core.MultiplyVector(monster.velocity, timeStep))
 		monster.animationTime += timeStep
 		w.Monsters[i] = monster
 	}
@@ -101,8 +101,8 @@ func (w World) Sprites(tm _asset.TextureManager) []_asset.Billboard {
 	spritePlane := w.Player.Direction.Orthogonal()
 	var result []_asset.Billboard
 	for _, monster := range w.Monsters {
-		start := _common.DivideVector(spritePlane, 2)
-		start = _common.SubstractVectors(monster.position, start)
+		start := _core.DivideVector(spritePlane, 2)
+		start = _core.SubstractVectors(monster.position, start)
 		result = append(result, _asset.NewBillBoard(start, spritePlane, 1,
 			tm.Animations[monster.animation].Texture(monster.animationTime)))
 	}
@@ -122,7 +122,7 @@ func (w *World) hurtPlayer(damage float64) {
 	}, 0.2))
 	if w.Player.isDead() {
 		w.Effects = append(w.Effects,
-			NewEffect(FizzleOut, _const.RED, 2))
+			NewEffect(FizzleOut, _consts.RED, 2))
 	}
 }
 
@@ -131,7 +131,7 @@ func (w *World) reset() {
 	w.Effects = w.Effects[:0]
 	for y := 0; y < w.Worldmap.Height; y++ {
 		for x := 0; x < w.Worldmap.Width; x++ {
-			position := _common.Vector{X: float64(x) + 0.5, Y: float64(y) + 0.5}
+			position := _core.Vector{X: float64(x) + 0.5, Y: float64(y) + 0.5}
 			thing := w.Worldmap.Things[y*w.Worldmap.Width+x]
 			switch thing {
 			case 0:

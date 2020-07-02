@@ -1,4 +1,4 @@
-package common
+package core
 
 type Ray struct {
 	Origin, Direction Vector

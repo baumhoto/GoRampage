@@ -1,4 +1,4 @@
-package common
+package core
 
 type Rotation struct {
 	m1, m2, m3, m4 float64

@@ -1,7 +1,7 @@
 package entity
 
 import (
-	"github.com/baumhoto/go-rampage/engine/common"
+	_core "github.com/baumhoto/go-rampage/engine/core"
 	"image/color"
 	"math"
 )
@@ -38,11 +38,11 @@ func (e Effect) Progress() float64 {
 	t := math.Min(1.0, e.Time/e.duration)
 	switch e.EffectType {
 	case FadeIn:
-		return common.EaseIn(t)
+		return _core.EaseIn(t)
 	case FadeOut:
-		return common.EaseOut(t)
+		return _core.EaseOut(t)
 	case FizzleOut:
-		return common.EaseInEaseOut(t)
+		return _core.EaseInEaseOut(t)
 	default:
 		return t
 	}

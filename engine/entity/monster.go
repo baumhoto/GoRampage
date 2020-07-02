@@ -3,7 +3,7 @@ package entity
 import (
 	"fmt"
 	_asset "github.com/baumhoto/go-rampage/engine/asset"
-	_common "github.com/baumhoto/go-rampage/engine/common"
+	_core "github.com/baumhoto/go-rampage/engine/core"
 	_map "github.com/baumhoto/go-rampage/engine/map"
 )
 
@@ -17,8 +17,8 @@ const (
 
 type Monster struct {
 	speed          float64
-	position       _common.Vector
-	velocity       _common.Vector
+	position       _core.Vector
+	velocity       _core.Vector
 	radius         float64
 	state          MonsterState
 	animation      string
@@ -27,24 +27,24 @@ type Monster struct {
 	lastAttackTime float64
 }
 
-func NewMonster(position _common.Vector) Monster {
-	return Monster{speed: 0.5, position: position, velocity: _common.Vector{0, 0},
+func NewMonster(position _core.Vector) Monster {
+	return Monster{speed: 0.5, position: position, velocity: _core.Vector{0, 0},
 		radius: 0.4375, state: MonsterStateIdle, animation: _asset.MonsterIdleAnimation,
 		attackCoolDown: 0.4}
 }
 
-func (m Monster) rect() _common.Rect {
+func (m Monster) rect() _core.Rect {
 	return rect(m.radius, m.position)
 }
 
-func (m Monster) intersection(tileMap _map.Tilemap) (bool, _common.Vector) {
+func (m Monster) intersection(tileMap _map.Tilemap) (bool, _core.Vector) {
 	return intersection(m.rect(), tileMap)
 }
 
 func (m Monster) canSeePlayer(world World) bool {
-	direction := _common.SubstractVectors(world.Player.Position, m.position)
+	direction := _core.SubstractVectors(world.Player.Position, m.position)
 	playerDistance := direction.Length()
-	ray := _common.Ray{
+	ray := _core.Ray{
 		Origin:    m.position,
 		Direction: *direction.Divide(playerDistance),
 	}
@@ -55,7 +55,7 @@ func (m Monster) canSeePlayer(world World) bool {
 
 func (m Monster) canReachPlayer(world World) bool {
 	reach := 0.25
-	playerDistance := _common.SubstractVectors(world.Player.Position, m.position).Length()
+	playerDistance := _core.SubstractVectors(world.Player.Position, m.position).Length()
 	return playerDistance-m.radius-world.Player.radius < reach
 }
 
@@ -64,7 +64,7 @@ func (m *Monster) update(world *World) {
 	case MonsterStateIdle:
 		if m.canSeePlayer(*world) {
 			m.state = MonsterStateChasing
-			m.velocity = _common.Vector{0, 0}
+			m.velocity = _core.Vector{0, 0}
 			m.animation = _asset.MonsterWalkAnimation
 			m.animationTime = 0.0
 		}
@@ -80,7 +80,7 @@ func (m *Monster) update(world *World) {
 			m.animation = _asset.MonsterScratchAnimation
 			m.lastAttackTime = -m.attackCoolDown
 		}
-		direction := _common.SubstractVectors(world.Player.Position, m.position)
+		direction := _core.SubstractVectors(world.Player.Position, m.position)
 		m.velocity = *direction.Multiply(m.speed / direction.Length())
 	case MonsterStateScratching:
 		if !m.canReachPlayer(*world) {

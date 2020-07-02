@@ -3,7 +3,7 @@ package _map
 import (
 	"encoding/json"
 	"fmt"
-	_common "github.com/baumhoto/go-rampage/engine/common"
+	_core "github.com/baumhoto/go-rampage/engine/core"
 	"io/ioutil"
 	"math"
 )
@@ -19,7 +19,7 @@ func (tm Tilemap) GetTile(x, y int) Tile {
 	return Tile(tm.Tiles[y*tm.Width+x])
 }
 
-func (tm Tilemap) Tile(position, direction _common.Vector) Tile {
+func (tm Tilemap) Tile(position, direction _core.Vector) Tile {
 	var offsetX, offsetY int
 	if math.Floor(position.X) == position.X {
 		offsetX = -1
@@ -37,7 +37,7 @@ func (tm Tilemap) Tile(position, direction _common.Vector) Tile {
 	return tm.GetTile(int(position.X)+offsetX, int(position.Y)+offsetY)
 }
 
-func (tm Tilemap) HitTest(ray _common.Ray) _common.Vector {
+func (tm Tilemap) HitTest(ray _core.Ray) _core.Vector {
 	position := ray.Origin
 	slope := ray.Direction.X / ray.Direction.Y
 	for {
@@ -53,8 +53,8 @@ func (tm Tilemap) HitTest(ray _common.Ray) _common.Vector {
 			edgeDistanceY = math.Ceil(position.Y) - 1 - position.Y
 		}
 
-		step1 := _common.Vector{X: edgeDistanceX, Y: edgeDistanceX / slope}
-		step2 := _common.Vector{X: edgeDistanceY * slope, Y: edgeDistanceY}
+		step1 := _core.Vector{X: edgeDistanceX, Y: edgeDistanceX / slope}
+		step2 := _core.Vector{X: edgeDistanceY * slope, Y: edgeDistanceY}
 
 		if step1.Length() < step2.Length() {
 			position.Add(step1)

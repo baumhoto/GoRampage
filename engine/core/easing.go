@@ -1,4 +1,4 @@
-package common
+package core
 
 func Linear(t float64) float64 {
 	return t

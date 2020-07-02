@@ -2,8 +2,8 @@ package render
 
 import (
 	_asset "github.com/baumhoto/go-rampage/engine/asset"
-	_common "github.com/baumhoto/go-rampage/engine/common"
-	_const "github.com/baumhoto/go-rampage/engine/consts"
+	_consts "github.com/baumhoto/go-rampage/engine/consts"
+	_core "github.com/baumhoto/go-rampage/engine/core"
 	_entity "github.com/baumhoto/go-rampage/engine/entity"
 	_map "github.com/baumhoto/go-rampage/engine/map"
 	"github.com/hajimehoshi/ebiten"
@@ -21,7 +21,7 @@ type Renderer struct {
 }
 
 func NewRenderer() Renderer {
-	fb := NewFrameBuffer(_const.SCREEN_WIDTH, _const.SCREEN_HEIGHT, _const.BLACK)
+	fb := NewFrameBuffer(_consts.SCREEN_WIDTH, _consts.SCREEN_HEIGHT, _consts.BLACK)
 	fizzleBuffer := make([]int, 9999)
 	for i := range fizzleBuffer {
 		fizzleBuffer[i] = i
@@ -41,15 +41,15 @@ func (r *Renderer) Draw(world _entity.World, screen *ebiten.Image) {
 	viewWidth := float64(width) / float64(height)
 	viewPlane := world.Player.Direction.Orthogonal()
 	viewPlane.Multiply(viewWidth)
-	viewCenter := _common.MultiplyVector(world.Player.Direction, focalLength)
+	viewCenter := _core.MultiplyVector(world.Player.Direction, focalLength)
 	viewCenter.Add(world.Player.Position)
-	viewStart := _common.DivideVector(viewPlane, 2)
-	viewStart = _common.SubstractVectors(viewCenter, viewStart)
+	viewStart := _core.DivideVector(viewPlane, 2)
+	viewStart = _core.SubstractVectors(viewCenter, viewStart)
 
 	// sort sprites by distance from player, greatest distance first
 	spritesByDistance := make(map[float64]_asset.Billboard)
 	for _, sprite := range world.Sprites(r.textures) {
-		spriteDistance := _common.SubstractVectors(sprite.Start, world.Player.Position).Length()
+		spriteDistance := _core.SubstractVectors(sprite.Start, world.Player.Position).Length()
 		spritesByDistance[spriteDistance] = sprite
 	}
 	keys := make([]float64, 0)
@@ -60,14 +60,14 @@ func (r *Renderer) Draw(world _entity.World, screen *ebiten.Image) {
 
 	// Cast rays
 	columns := width
-	step := _common.DivideVector(viewPlane, float64(columns))
+	step := _core.DivideVector(viewPlane, float64(columns))
 	columnPosition := viewStart
 	for x := 0; x < columns; x++ {
-		rayDirection := _common.SubstractVectors(columnPosition, world.Player.Position)
+		rayDirection := _core.SubstractVectors(columnPosition, world.Player.Position)
 		viewPlaneDistance := rayDirection.Length()
-		ray := _common.Ray{world.Player.Position, _common.DivideVector(rayDirection, viewPlaneDistance)}
+		ray := _core.Ray{world.Player.Position, _core.DivideVector(rayDirection, viewPlaneDistance)}
 		lineEnd := world.Worldmap.HitTest(ray)
-		wallDistance := _common.SubstractVectors(lineEnd, ray.Origin).Length()
+		wallDistance := _core.SubstractVectors(lineEnd, ray.Origin).Length()
 
 		// Draw wall
 		wallHeight := 1.0
@@ -84,7 +84,7 @@ func (r *Renderer) Draw(world _entity.World, screen *ebiten.Image) {
 
 		textureX := int(wallX * float64(wallTexture.Image.Bounds().Size().X))
 		// hack (substract a tiny ofset to prevent texture smearing)
-		wallStart := _common.Vector{float64(x), (float64(height)-realHeight)/2 - 0.001}
+		wallStart := _core.Vector{float64(x), (float64(height)-realHeight)/2 - 0.001}
 		r.frameBuffer.drawColumn(textureX, wallTexture, wallStart, realHeight, height)
 
 		// Draw floor & ceiling
@@ -95,7 +95,7 @@ func (r *Renderer) Draw(world _entity.World, screen *ebiten.Image) {
 			normalizedY := (float64(y)/float64(height))*2 - 1
 			perpendicular := wallHeight * focalLength / normalizedY
 			distance := perpendicular * distanceRatio
-			mapPosition := _common.MultiplyVector(ray.Direction, distance)
+			mapPosition := _core.MultiplyVector(ray.Direction, distance)
 			mapPosition.Add(ray.Origin)
 			tileX := math.Floor(mapPosition.X)
 			tileY := math.Floor(mapPosition.Y)
@@ -125,10 +125,10 @@ func (r *Renderer) Draw(world _entity.World, screen *ebiten.Image) {
 
 			perpendicular = spriteDistance / distanceRatio
 			spriteHeight := wallHeight / perpendicular * float64((height))
-			spriteX := _common.SubstractVectors(hit, sprite.Start).Length() / sprite.Length
+			spriteX := _core.SubstractVectors(hit, sprite.Start).Length() / sprite.Length
 			spriteTexture := sprite.Texture
 			textureX = int(math.Min(spriteX*float64(spriteTexture.Width()), float64(spriteTexture.Width()-1)))
-			start := _common.Vector{float64(x), (float64(height)-spriteHeight)/2 + 0.001}
+			start := _core.Vector{float64(x), (float64(height)-spriteHeight)/2 + 0.001}
 			r.frameBuffer.drawColumn(textureX, spriteTexture, start, spriteHeight, height)
 		}
 
@@ -168,9 +168,9 @@ func (r *Renderer) Draw2d(world _entity.World, screen *ebiten.Image) {
 	for y := 0; y < world.Worldmap.Height; y++ {
 		for x := 0; x < world.Worldmap.Width; x++ {
 			if world.Worldmap.GetTile(x, y).IsWall() {
-				rect := _common.Rect{_common.Vector{float64(x) * scale, float64(y) * scale},
-					_common.Vector{float64((x + 1)) * scale, float64((y + 1)) * scale}}
-				r.frameBuffer.Fill(rect, _const.WHITE)
+				rect := _core.Rect{_core.Vector{float64(x) * scale, float64(y) * scale},
+					_core.Vector{float64((x + 1)) * scale, float64((y + 1)) * scale}}
+				r.frameBuffer.Fill(rect, _consts.WHITE)
 			}
 		}
 	}
@@ -179,49 +179,49 @@ func (r *Renderer) Draw2d(world _entity.World, screen *ebiten.Image) {
 	rect := world.Player.Rect()
 	rect.Min.Multiply(scale)
 	rect.Max.Multiply(scale)
-	r.frameBuffer.Fill(rect, _const.BLUE)
+	r.frameBuffer.Fill(rect, _consts.BLUE)
 
 	// Draw view plane
 	focalLength := 1.0
 	viewWidth := 1.0
 	viewPlane := world.Player.Direction.Orthogonal()
 	viewPlane.Multiply(viewWidth)
-	viewCenter := _common.MultiplyVector(world.Player.Direction, focalLength)
+	viewCenter := _core.MultiplyVector(world.Player.Direction, focalLength)
 	viewCenter.Add(world.Player.Position)
-	viewStart := _common.DivideVector(viewPlane, 2)
-	viewStart = _common.SubstractVectors(viewCenter, viewStart)
-	viewEnd := _common.AddVectors(viewStart, viewPlane)
+	viewStart := _core.DivideVector(viewPlane, 2)
+	viewStart = _core.SubstractVectors(viewCenter, viewStart)
+	viewEnd := _core.AddVectors(viewStart, viewPlane)
 	viewEnd.Multiply(scale)
-	r.frameBuffer.DrawLine(_common.MultiplyVector(viewStart, scale), viewEnd, _const.RED)
+	r.frameBuffer.DrawLine(_core.MultiplyVector(viewStart, scale), viewEnd, _consts.RED)
 
 	// Cast rays
 	columns := 10.0
-	step := _common.DivideVector(viewPlane, columns)
+	step := _core.DivideVector(viewPlane, columns)
 	columnPosition := viewStart
 	for i := 0; i < int(columns); i++ {
-		rayDirection := _common.SubstractVectors(columnPosition, world.Player.Position)
+		rayDirection := _core.SubstractVectors(columnPosition, world.Player.Position)
 		viewPlaneDistance := rayDirection.Length()
-		ray := _common.Ray{world.Player.Position, _common.DivideVector(rayDirection, viewPlaneDistance)}
+		ray := _core.Ray{world.Player.Position, _core.DivideVector(rayDirection, viewPlaneDistance)}
 		end := world.Worldmap.HitTest(ray)
 		for _, sprite := range world.Sprites(r.textures) {
 			hit := sprite.HitTest(ray)
-			if (hit == _common.Vector{}) { // does not work for vector 0, 0???
+			if (hit == _core.Vector{}) { // does not work for vector 0, 0???
 				continue
 			}
-			spriteDistance := _common.SubstractVectors(hit, ray.Origin).Length()
-			if spriteDistance > (_common.SubstractVectors(end, ray.Origin).Length()) {
+			spriteDistance := _core.SubstractVectors(hit, ray.Origin).Length()
+			if spriteDistance > (_core.SubstractVectors(end, ray.Origin).Length()) {
 				continue
 			}
 			end = hit
 		}
-		start := _common.MultiplyVector(ray.Origin, scale)
+		start := _core.MultiplyVector(ray.Origin, scale)
 		end.Multiply(scale)
-		r.frameBuffer.DrawLine(start, end, _const.GREEN)
+		r.frameBuffer.DrawLine(start, end, _consts.GREEN)
 		columnPosition.Add(step)
 	}
 
 	for _, line := range world.Sprites(r.textures) {
-		r.frameBuffer.DrawLine(_common.MultiplyVector(line.Start, scale), _common.MultiplyVector(line.End, scale), _const.GREEN)
+		r.frameBuffer.DrawLine(_core.MultiplyVector(line.Start, scale), _core.MultiplyVector(line.End, scale), _consts.GREEN)
 	}
 
 	screen.DrawImage(r.frameBuffer.ToImage(), nil)
