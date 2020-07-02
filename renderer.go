@@ -121,7 +121,12 @@ func (r *Renderer) draw(world World, screen *ebiten.Image) {
 
 	// Effects
 	for _, effect := range world.effects {
-		r.frameBuffer.tint(effect.color, 1-effect.progress())
+		switch effect.effectType {
+		case fadeIn:
+			r.frameBuffer.tint(effect.color, 1-effect.progress())
+		case fadeOut:
+			r.frameBuffer.tint(effect.color, effect.progress())
+		}
 	}
 
 	screen.DrawImage(r.frameBuffer.ToImage(), nil)

@@ -32,14 +32,16 @@ func (w *World) update(timeStep float64, input Input) {
 	w.effects = effectsInProgress
 
 	// update player
-	if w.player.isDead() {
+	if !w.player.isDead() {
+		w.player.direction = w.player.direction.rotated(input.rotation)
+		w.player.velocity = MultiplyVector(w.player.direction, input.speed*w.player.speed)
+		w.player.velocity.Multiply(timeStep)
+		w.player.position.Add(w.player.velocity)
+	} else if len(w.effects) == 0 {
 		w.reset()
+		world.effects = append(world.effects, NewEffect(fadeIn, red, 0.5))
 		return
 	}
-	w.player.direction = w.player.direction.rotated(input.rotation)
-	w.player.velocity = MultiplyVector(w.player.direction, input.speed*w.player.speed)
-	w.player.velocity.Multiply(timeStep)
-	w.player.position.Add(w.player.velocity)
 
 	// update monsters
 	for i, _ := range w.monsters {
@@ -100,6 +102,9 @@ func (w World) sprites(tm TextureManager) []Billboard {
 }
 
 func (w *World) hurtPlayer(damage float64) {
+	if w.player.isDead() {
+		return
+	}
 	w.player.health -= damage
 	w.effects = append(w.effects, NewEffect(fadeIn, color.RGBA{
 		R: 255,
@@ -107,6 +112,9 @@ func (w *World) hurtPlayer(damage float64) {
 		B: 0,
 		A: 191,
 	}, 0.2))
+	if w.player.isDead() {
+		w.effects = append(w.effects, NewEffect(fadeOut, red, 2))
+	}
 }
 
 func (w *World) reset() {

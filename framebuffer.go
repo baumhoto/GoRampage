@@ -8,22 +8,16 @@ import (
 
 // FrameBuffer stores the color for each pixel of the buffer
 type FrameBuffer struct {
-	pixels          []color.Color
-	width           int
-	height          int
-	backgroundColor color.Color
-	img             *ebiten.Image
+	width  int
+	height int
+	img    *ebiten.Image
 }
 
 // NewFrameBuffer creates a new FrameBuffer of given size with
 // background-color c
 func NewFrameBuffer(width int, height int, c color.Color) FrameBuffer {
 	img, _ := ebiten.NewImage(width, height, ebiten.FilterDefault)
-
-	pixels := make([]color.Color, width*height)
-	fb := FrameBuffer{pixels, width, height, c, img}
-	fb.resetFrameBuffer()
-
+	fb := FrameBuffer{width, height, img}
 	return fb
 }
 
@@ -31,13 +25,13 @@ func NewFrameBuffer(width int, height int, c color.Color) FrameBuffer {
 // in the Framebuffer
 func (fb *FrameBuffer) SetColorAt(x int, y int, c color.Color) {
 	if x >= 0 && y >= 0 && x < fb.width && y < fb.height {
-		fb.pixels[y*fb.width+x] = c
+		fb.img.Set(x, y, c) // = c
 	}
 }
 
 // ColorAt retrieves the Color for a pixel at x, y in the FrameBuffer
 func (fb FrameBuffer) ColorAt(x int, y int) color.Color {
-	c := fb.pixels[y*fb.width+x]
+	c := fb.img.At(x, y)
 	return c
 }
 
@@ -91,21 +85,12 @@ func (fb *FrameBuffer) DrawLine(from, to Vector, color color.Color) {
 }
 
 func (fb *FrameBuffer) resetFrameBuffer() {
-	for index := range fb.pixels {
-		fb.pixels[index] = fb.backgroundColor
-	}
+	fb.img.Clear()
 }
 
 // ToRGBA converts the FrameBuffer into an Png-Image
 // Buffer and returns an io.Reader
 func (fb *FrameBuffer) ToImage() *ebiten.Image {
-	// Set color for each pixel.
-	for x := 0; x < fb.width; x++ {
-		for y := 0; y < fb.height; y++ {
-			fb.img.Set(x, y, fb.ColorAt(x, y))
-		}
-	}
-
 	return fb.img
 }
 func (fb *FrameBuffer) blendPixel(x, y int, newColor color.Color) {
@@ -127,7 +112,7 @@ func (fb *FrameBuffer) tint(tintColor color.Color, opacity float64) {
 		uint8(float64(uint8(r)) * alpha),
 		uint8(float64(uint8(g)) * alpha),
 		uint8(float64(uint8(b)) * alpha),
-		uint8(uint8(alpha) * 255)}
+		uint8(alpha * 255)}
 
 	//fmt.Printf("%v %v %v %v %v %v %v \n", r, g, b, a, effectColor, opacity, alpha)
 

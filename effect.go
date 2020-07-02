@@ -9,6 +9,7 @@ type EffectType int
 
 const (
 	fadeIn EffectType = iota
+	fadeOut
 )
 
 type Effect struct {
@@ -32,5 +33,13 @@ func (e Effect) isCompleted() bool {
 }
 
 func (e Effect) progress() float64 {
-	return math.Min(1.0, e.time/e.duration)
+	t := math.Min(1.0, e.time/e.duration)
+	switch e.effectType {
+	case fadeIn:
+		return easeIn(t)
+	case fadeOut:
+		return easeOut(t)
+	default:
+		return t
+	}
 }
