@@ -13,6 +13,8 @@ const (
 	MonsterIdleAnimation    = "monsterIdle"
 	MonsterWalkAnimation    = "monsterWalk"
 	MonsterScratchAnimation = "monsterScratch"
+	PistolIdleAnimation     = "pistolIdle"
+	PistolFireAnimation     = "pistolFire"
 )
 
 func (a Animation) Texture(time float64) Texture {

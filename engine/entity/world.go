@@ -40,8 +40,8 @@ func (w *World) Update(timeStep float64, input _input.Input) {
 
 	// update player
 	if !w.Player.isDead() {
-		w.Player.Direction = w.Player.Direction.Rotated(input.Rotation)
-		w.Player.velocity = _core.MultiplyVector(w.Player.Direction, input.Speed*w.Player.speed)
+		w.Player.AnimationTime += timeStep
+		w.Player.update(input)
 		w.Player.velocity.Multiply(timeStep)
 		w.Player.Position.Add(w.Player.velocity)
 	} else if len(w.Effects) == 0 {

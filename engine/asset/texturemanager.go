@@ -48,34 +48,55 @@ func (tm TextureManager) GetFloorCeilingTextureByTile(tile _map.Tile, isCeiling 
 	return result
 }
 
+func (tm TextureManager) GetTextureByKey(key string) Texture {
+	return tm.textures[key]
+}
+
 func (tm *TextureManager) initAnimations() {
-	tm.Animations = make(map[string]Animation, 2)
+	tm.Animations = make(map[string]Animation, 4)
 	tm.Animations[MonsterIdleAnimation] = Animation{
-		frames:   []Texture{tm.textures["5"]},
+		frames:   []Texture{tm.textures[MonsterIdleTexture]},
 		duration: 0,
 	}
 
 	tm.Animations[MonsterWalkAnimation] = Animation{
 		frames: []Texture{
-			tm.textures["5aw1"],
-			tm.textures["5"],
-			tm.textures["5aw2"],
-			tm.textures["5"]},
+			tm.textures[MonsterWalkTexture1],
+			tm.textures[MonsterIdleTexture],
+			tm.textures[MonsterWalkTexture2],
+			tm.textures[MonsterIdleTexture]},
 		duration: 0.5,
 	}
 
 	tm.Animations[MonsterScratchAnimation] = Animation{
 		frames: []Texture{
-			tm.textures["5as1"],
-			tm.textures["5as2"],
-			tm.textures["5as3"],
-			tm.textures["5as4"],
-			tm.textures["5as5"],
-			tm.textures["5as6"],
-			tm.textures["5as7"],
-			tm.textures["5as8"],
+			tm.textures[MonsterScratchTexture1],
+			tm.textures[MonsterScratchTexture2],
+			tm.textures[MonsterScratchTexture3],
+			tm.textures[MonsterScratchTexture4],
+			tm.textures[MonsterScratchTexture5],
+			tm.textures[MonsterScratchTexture6],
+			tm.textures[MonsterScratchTexture7],
+			tm.textures[MonsterScratchTexture8],
 		},
 		duration: 0.8,
+	}
+
+	tm.Animations[PistolIdleAnimation] = Animation{
+		frames: []Texture{
+			tm.textures[PistolIdleTexture],
+		},
+		duration: 0.0,
+	}
+
+	tm.Animations[PistolFireAnimation] = Animation{
+		frames: []Texture{
+			tm.textures[PistolFireTexture1],
+			tm.textures[PistolFireTexture2],
+			tm.textures[PistolFireTexture3],
+			tm.textures[PistolFireTexture4],
+		},
+		duration: 0.5,
 	}
 }
 

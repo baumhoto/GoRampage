@@ -10,7 +10,6 @@ func GetTextureCategory(textureName string) int {
 	if strings.Contains(textureName, "wall") {
 		return 0
 	}
-
 	return 1
 }
 
@@ -35,3 +34,31 @@ func (t Texture) Width() int {
 func (t Texture) Height() int {
 	return t.Image.Bounds().Size().Y
 }
+
+const (
+	CeilingTexture         = "0c"
+	FloorTexture           = "0f"
+	WallTexture            = "1"
+	Wall2Texture           = "1v"
+	CrackWallTexture       = "2"
+	CrackWall2Texture      = "2v"
+	SlimeWallTexture       = "3"
+	SlimeWall2Texture      = "3v"
+	CrackFloorTexture      = "4f"
+	MonsterIdleTexture     = "5"
+	MonsterWalkTexture1    = "5aw1"
+	MonsterWalkTexture2    = "5aw2"
+	MonsterScratchTexture1 = "5as1"
+	MonsterScratchTexture2 = "5as2"
+	MonsterScratchTexture3 = "5as3"
+	MonsterScratchTexture4 = "5as4"
+	MonsterScratchTexture5 = "5as5"
+	MonsterScratchTexture6 = "5as6"
+	MonsterScratchTexture7 = "5as7"
+	MonsterScratchTexture8 = "5as8"
+	PistolIdleTexture      = "6"
+	PistolFireTexture1     = "6af1"
+	PistolFireTexture2     = "6af2"
+	PistolFireTexture3     = "6af3"
+	PistolFireTexture4     = "6af4"
+)

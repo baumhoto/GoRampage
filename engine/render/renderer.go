@@ -15,9 +15,9 @@ import (
 
 // Renderer renders to the window
 type Renderer struct {
-	frameBuffer  FrameBuffer
-	textures     _asset.TextureManager
-	fizzleBuffer []int
+	frameBuffer    FrameBuffer
+	textureManager _asset.TextureManager
+	fizzleBuffer   []int
 }
 
 func NewRenderer() Renderer {
@@ -48,7 +48,7 @@ func (r *Renderer) Draw(world _entity.World, screen *ebiten.Image) {
 
 	// sort sprites by distance from player, greatest distance first
 	spritesByDistance := make(map[float64]_asset.Billboard)
-	for _, sprite := range world.Sprites(r.textures) {
+	for _, sprite := range world.Sprites(r.textureManager) {
 		spriteDistance := _core.SubstractVectors(sprite.Start, world.Player.Position).Length()
 		spritesByDistance[spriteDistance] = sprite
 	}
@@ -77,7 +77,7 @@ func (r *Renderer) Draw(world _entity.World, screen *ebiten.Image) {
 		// is the wall a vertical (north/south) or horizontal (east/west)
 		tile := world.Worldmap.Tile(lineEnd, ray.Direction)
 		wallX := lineEnd.X - math.Floor(lineEnd.X)
-		wallTexture := r.textures.GetWallTextureByTile(tile, math.Floor(lineEnd.X) != lineEnd.X)
+		wallTexture := r.textureManager.GetWallTextureByTile(tile, math.Floor(lineEnd.X) != lineEnd.X)
 		if math.Floor(lineEnd.X) == lineEnd.X {
 			wallX = lineEnd.Y - math.Floor(lineEnd.Y)
 		}
@@ -101,8 +101,8 @@ func (r *Renderer) Draw(world _entity.World, screen *ebiten.Image) {
 			tileY := math.Floor(mapPosition.Y)
 			tile := world.Worldmap.GetTile(int(tileX), int(tileY))
 			if tile != floorTile {
-				floorTexture = r.textures.GetFloorCeilingTextureByTile(tile, false)
-				ceilingTexture = r.textures.GetFloorCeilingTextureByTile(tile, true)
+				floorTexture = r.textureManager.GetFloorCeilingTextureByTile(tile, false)
+				ceilingTexture = r.textureManager.GetFloorCeilingTextureByTile(tile, true)
 				floorTile = tile
 			}
 
@@ -134,6 +134,17 @@ func (r *Renderer) Draw(world _entity.World, screen *ebiten.Image) {
 
 		columnPosition.Add(step)
 	}
+
+	// Player weapon
+	r.frameBuffer.drawImage(
+		r.textureManager.Animations[world.Player.Animation].Texture(world.Player.AnimationTime),
+		_core.Vector{
+			X: float64(width)/2.0 - float64(height)/2.0,
+			Y: 0,
+		}, _core.Vector{
+			X: float64(height),
+			Y: float64(height),
+		})
 
 	// Effects
 	for _, effect := range world.Effects {
@@ -203,7 +214,7 @@ func (r *Renderer) Draw2d(world _entity.World, screen *ebiten.Image) {
 		viewPlaneDistance := rayDirection.Length()
 		ray := _core.Ray{world.Player.Position, _core.DivideVector(rayDirection, viewPlaneDistance)}
 		end := world.Worldmap.HitTest(ray)
-		for _, sprite := range world.Sprites(r.textures) {
+		for _, sprite := range world.Sprites(r.textureManager) {
 			hit := sprite.HitTest(ray)
 			if (hit == _core.Vector{}) { // does not work for vector 0, 0???
 				continue
@@ -220,7 +231,7 @@ func (r *Renderer) Draw2d(world _entity.World, screen *ebiten.Image) {
 		columnPosition.Add(step)
 	}
 
-	for _, line := range world.Sprites(r.textures) {
+	for _, line := range world.Sprites(r.textureManager) {
 		r.frameBuffer.DrawLine(_core.MultiplyVector(line.Start, scale), _core.MultiplyVector(line.End, scale), _consts.GREEN)
 	}
 

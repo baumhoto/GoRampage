@@ -58,6 +58,17 @@ func (fb *FrameBuffer) drawColumn(sourceX int, source _asset.Texture, atPoint _c
 	}
 }
 
+func (fb *FrameBuffer) drawImage(source _asset.Texture, at, size _core.Vector) {
+	start := at.X
+	end := at.X + size.X
+	stepX := float64(source.Width()) / size.X
+	for x := math.Max(0.0, start); x < math.Min(float64(fb.width), end); x++ {
+		sourceX := (x - at.X) * stepX
+		outPosition := _core.Vector{x, at.Y}
+		fb.drawColumn(int(sourceX), source, outPosition, size.Y, fb.height)
+	}
+}
+
 func (fb *FrameBuffer) DrawLine(from, to _core.Vector, color color.Color) {
 	difference := _core.SubstractVectors(to, from)
 	var stepCount int

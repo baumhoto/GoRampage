@@ -18,10 +18,11 @@ type Game struct {
 }
 
 var world _entity.World
-var lastRenderFinishedTime time.Time
 var renderer _render.Renderer
 var fullScreen bool
 var pause bool
+var lastFrameTime float64
+var lastTime time.Time
 
 func main() {
 	world = _entity.NewWorld()
@@ -48,7 +49,7 @@ func (g *Game) Update(screen *ebiten.Image) error {
 	if !pause {
 		worldSteps := math.Ceil(_consts.TIMESTEP / _consts.WORLD_TIMESTEP)
 		for i := 0; i < int(worldSteps); i++ {
-			world.Update(_consts.TIMESTEP/worldSteps, _input.GetInput(world.Player.TurningSpeed))
+			world.Update(_consts.TIMESTEP/worldSteps, _input.GetInput(world.Player.TurningSpeed, lastFrameTime))
 		}
 	}
 
@@ -63,6 +64,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 	//renderer.Draw2d(world, screen)
 	renderer.Draw(world, screen)
+
+	if !lastTime.IsZero() {
+		lastFrameTime = time.Since(lastTime).Seconds()
+		//fmt.Printf("%v\n", lastFrameTime)
+	}
+	lastTime = time.Now()
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
