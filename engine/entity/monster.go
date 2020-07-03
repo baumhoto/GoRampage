@@ -67,7 +67,7 @@ func (m Monster) canReachPlayer(world World) bool {
 	return playerDistance-m.radius-world.Player.radius < reach
 }
 
-func (m *Monster) update(world *World) {
+func (m *Monster) update(world *World, tm *_asset.TextureManager) {
 	switch m.state {
 	case MonsterStateIdle:
 		if m.canSeePlayer(*world) {
@@ -80,14 +80,14 @@ func (m *Monster) update(world *World) {
 			m.state = MonsterStateIdle
 			m.animation = _asset.MonsterIdleAnimation
 			m.animationTime = 0.0
-			m.velocity = _core.Vector{0, 0}
+			m.velocity = _core.Vector{}
 			break
 		}
 		if m.canReachPlayer(*world) {
 			m.state = MonsterStateScratching
 			m.animation = _asset.MonsterScratchAnimation
 			m.lastAttackTime = -m.attackCoolDown
-			m.velocity = _core.Vector{0, 0}
+			m.velocity = _core.Vector{}
 		}
 		direction := _core.SubstractVectors(world.Player.Position, m.position)
 		m.velocity = *direction.Multiply(m.speed / direction.Length())
@@ -102,13 +102,13 @@ func (m *Monster) update(world *World) {
 			world.hurtPlayer(10)
 		}
 	case MonsterStateHurt:
-		if m.animationTime >= 0.2 { // TODO remove hardcoded
+		if tm.Animations[m.animation].IsCompleted(m.animationTime) {
 			m.state = MonsterStateIdle
 			m.animation = _asset.MonsterIdleAnimation
 			m.animationTime = 0.0
 		}
 	case MonsterStateDead:
-		if m.animationTime >= 0.5 { // TODO remove hardcoded
+		if tm.Animations[m.animation].IsCompleted(m.animationTime) {
 			m.animationTime = 0.0
 			m.animation = _asset.AnimationMonsterDead
 		}

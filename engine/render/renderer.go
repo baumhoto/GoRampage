@@ -17,7 +17,6 @@ import (
 // Renderer renders to the window
 type Renderer struct {
 	frameBuffer    FrameBuffer
-	textureManager _asset.TextureManager
 	fizzleBuffer   []int
 }
 
@@ -31,11 +30,11 @@ func NewRenderer() Renderer {
 	rand.Shuffle(len(fizzleBuffer), func(i, j int) { fizzleBuffer[i], fizzleBuffer[j] = fizzleBuffer[j], fizzleBuffer[i] })
 	//fmt.Printf("%v/n", fizzleBuffer)
 
-	return Renderer{fb, *_asset.NewTextureManager(), fizzleBuffer}
+	return Renderer{fb, fizzleBuffer}
 }
 
 // draw renders the world into the window
-func (r *Renderer) Draw(world _entity.World, screen *ebiten.Image) {
+func (r *Renderer) Draw(world _entity.World, screen *ebiten.Image, tm *_asset.TextureManager) {
 	width, height := screen.Size()
 
 	focalLength := 1.0
@@ -49,7 +48,7 @@ func (r *Renderer) Draw(world _entity.World, screen *ebiten.Image) {
 
 	// sort sprites by distance from player, greatest distance first
 	spritesByDistance := make(map[float64]_asset.Billboard)
-	for _, sprite := range world.Sprites(r.textureManager) {
+	for _, sprite := range world.Sprites(tm) {
 		spriteDistance := _core.SubstractVectors(sprite.Start, world.Player.Position).Length()
 		spritesByDistance[spriteDistance] = sprite
 	}
@@ -78,14 +77,14 @@ func (r *Renderer) Draw(world _entity.World, screen *ebiten.Image) {
 		// is the wall a vertical (north/south) or horizontal (east/west)
 		tile := world.Worldmap.Tile(lineEnd, ray.Direction)
 		wallX := lineEnd.X - math.Floor(lineEnd.X)
-		wallTexture := r.textureManager.GetWallTextureByTile(tile, math.Floor(lineEnd.X) != lineEnd.X)
+		wallTexture := tm.GetWallTextureByTile(tile, math.Floor(lineEnd.X) != lineEnd.X)
 		if math.Floor(lineEnd.X) == lineEnd.X {
 			wallX = lineEnd.Y - math.Floor(lineEnd.Y)
 		}
 
 		textureX := int(wallX * float64(wallTexture.Image.Bounds().Size().X))
 		// hack (substract a tiny ofset to prevent texture smearing)
-		wallStart := _core.Vector{float64(x), (float64(height)-realHeight)/2 - 0.001}
+		wallStart := _core.Vector{X: float64(x), Y: (float64(height)-realHeight)/2 - 0.001}
 		r.frameBuffer.drawColumn(textureX, wallTexture, wallStart, realHeight, height)
 
 		// Draw floor & ceiling
@@ -102,8 +101,8 @@ func (r *Renderer) Draw(world _entity.World, screen *ebiten.Image) {
 			tileY := math.Floor(mapPosition.Y)
 			tile := world.Worldmap.GetTile(int(tileX), int(tileY))
 			if tile != floorTile {
-				floorTexture = r.textureManager.GetFloorCeilingTextureByTile(tile, false)
-				ceilingTexture = r.textureManager.GetFloorCeilingTextureByTile(tile, true)
+				floorTexture = tm.GetFloorCeilingTextureByTile(tile, false)
+				ceilingTexture = tm.GetFloorCeilingTextureByTile(tile, true)
 				floorTile = tile
 			}
 
@@ -138,7 +137,7 @@ func (r *Renderer) Draw(world _entity.World, screen *ebiten.Image) {
 
 	// Player weapon
 	r.frameBuffer.drawImage(
-		r.textureManager.Animations[world.Player.Animation].Texture(world.Player.AnimationTime),
+		tm.Animations[world.Player.Animation].Texture(world.Player.AnimationTime),
 		_core.Vector{
 			X: float64(width)/2.0 - float64(height)/2.0,
 			Y: 0,
@@ -213,9 +212,9 @@ func (r *Renderer) Draw2d(world _entity.World, screen *ebiten.Image) {
 	for i := 0; i < int(columns); i++ {
 		rayDirection := _core.SubstractVectors(columnPosition, world.Player.Position)
 		viewPlaneDistance := rayDirection.Length()
-		ray := _core.Ray{world.Player.Position, _core.DivideVector(rayDirection, viewPlaneDistance)}
+		ray := _core.Ray{Origin: world.Player.Position, Direction: _core.DivideVector(rayDirection, viewPlaneDistance)}
 		end := world.Worldmap.HitTest(ray)
-		for _, sprite := range world.Sprites(r.textureManager) {
+		for _, sprite := range world.Sprites(&_asset.TextureManager{}) {
 			hit := sprite.HitTest(ray)
 			if (hit == _core.Vector{}) { // does not work for vector 0, 0???
 				continue
@@ -232,7 +231,7 @@ func (r *Renderer) Draw2d(world _entity.World, screen *ebiten.Image) {
 		columnPosition.Add(step)
 	}
 
-	for _, line := range world.Sprites(r.textureManager) {
+	for _, line := range world.Sprites(&_asset.TextureManager{}) {
 		r.frameBuffer.DrawLine(_core.MultiplyVector(line.Start, scale), _core.MultiplyVector(line.End, scale), _consts.GREEN)
 	}
 

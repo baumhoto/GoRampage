@@ -27,7 +27,7 @@ func NewWorld() World {
 }
 
 // update updates the World
-func (w *World) Update(timeStep float64, input _input.Input) {
+func (w *World) Update(timeStep float64, input _input.Input, tm *_asset.TextureManager) {
 	// update effects
 	var effectsInProgress []Effect
 	for _, effect := range w.Effects {
@@ -42,7 +42,7 @@ func (w *World) Update(timeStep float64, input _input.Input) {
 	// update player
 	if !w.Player.isDead() {
 		w.Player.AnimationTime += timeStep
-		w.Player.update(w, input)
+		w.Player.update(w, input, tm)
 		w.Player.velocity.Multiply(timeStep)
 		w.Player.Position.Add(w.Player.velocity)
 	} else if len(w.Effects) == 0 {
@@ -55,7 +55,7 @@ func (w *World) Update(timeStep float64, input _input.Input) {
 	for i, _ := range w.Monsters {
 		monster := w.Monsters[i]
 		monster.animationTime += timeStep
-		monster.update(w)
+		monster.update(w, tm)
 		monster.position.Add(_core.MultiplyVector(monster.velocity, timeStep))
 		w.Monsters[i] = monster
 	}
@@ -101,7 +101,7 @@ func (w *World) Update(timeStep float64, input _input.Input) {
 	}
 }
 
-func (w World) Sprites(tm _asset.TextureManager) []_asset.Billboard {
+func (w World) Sprites(tm *_asset.TextureManager) []_asset.Billboard {
 	ray := _core.Ray{
 		Origin:    w.Player.Position,
 		Direction: w.Player.Direction,
@@ -109,7 +109,9 @@ func (w World) Sprites(tm _asset.TextureManager) []_asset.Billboard {
 	var result []_asset.Billboard
 	for _, monster := range w.Monsters {
 		billboard := monster.billboard(ray)
-		billboard.Texture = tm.Animations[monster.animation].Texture(monster.animationTime)
+		if len(tm.Animations) > 0 {
+			billboard.Texture = tm.Animations[monster.animation].Texture(monster.animationTime)
+		}
 		result = append(result, billboard)
 	}
 	return result
@@ -191,3 +193,4 @@ func (w World) hitTest(ray _core.Ray) int {
 
 	return result
 }
+

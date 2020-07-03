@@ -1,6 +1,7 @@
 package main
 
 import (
+	_asset "github.com/baumhoto/GoRampage/engine/asset"
 	_ "image/png"
 	"log"
 	"math"
@@ -20,6 +21,7 @@ type Game struct {
 
 var world _entity.World
 var renderer _render.Renderer
+var textureManger *_asset.TextureManager
 var fullScreen bool
 var pause bool
 var lastFrameTime float64
@@ -28,6 +30,7 @@ var lastTime time.Time
 func main() {
 	world = _entity.NewWorld()
 	renderer = _render.NewRenderer()
+	textureManger = _asset.NewTextureManager()
 	game := &Game{}
 	ebiten.SetWindowSize(_consts.SCREEN_WIDTH*_consts.SCREEN_SCALE, _consts.SCREEN_HEIGHT*_consts.SCREEN_SCALE)
 	ebiten.SetWindowTitle("GoRampage")
@@ -53,7 +56,7 @@ func (g *Game) Update(screen *ebiten.Image) error {
 	if !pause {
 		worldSteps := math.Ceil(_consts.TIMESTEP / _consts.WORLD_TIMESTEP)
 		for i := 0; i < int(worldSteps); i++ {
-			world.Update(_consts.TIMESTEP/worldSteps, _input.GetInput(world.Player.TurningSpeed, lastFrameTime))
+			world.Update(_consts.TIMESTEP/worldSteps, _input.GetInput(world.Player.TurningSpeed, lastFrameTime), textureManger)
 		}
 	}
 
@@ -67,7 +70,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		renderer.ResetFrameBuffer()
 	}
 	//renderer.Draw2d(world, screen)
-	renderer.Draw(world, screen)
+	renderer.Draw(world, screen, textureManger)
 
 	if !lastTime.IsZero() {
 		lastFrameTime = time.Since(lastTime).Seconds()
