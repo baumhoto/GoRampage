@@ -1,12 +1,13 @@
 package entity
 
 import (
-	_asset "github.com/baumhoto/go-rampage/engine/asset"
-	_consts "github.com/baumhoto/go-rampage/engine/consts"
-	_core "github.com/baumhoto/go-rampage/engine/core"
-	_input "github.com/baumhoto/go-rampage/engine/input"
-	_map "github.com/baumhoto/go-rampage/engine/map"
 	"image/color"
+
+	_asset "github.com/baumhoto/GoRampage/engine/asset"
+	_consts "github.com/baumhoto/GoRampage/engine/consts"
+	_core "github.com/baumhoto/GoRampage/engine/core"
+	_input "github.com/baumhoto/GoRampage/engine/input"
+	_map "github.com/baumhoto/GoRampage/engine/map"
 )
 
 // World is a container for the world

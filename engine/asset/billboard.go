@@ -1,8 +1,9 @@
 package asset
 
 import (
-	_core "github.com/baumhoto/go-rampage/engine/core"
 	"math"
+
+	_core "github.com/baumhoto/GoRampage/engine/core"
 )
 
 type Billboard struct {

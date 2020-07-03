@@ -1,11 +1,12 @@
 package entity
 
 import (
-	"github.com/baumhoto/go-rampage/engine/asset"
-	_core "github.com/baumhoto/go-rampage/engine/core"
-	_input "github.com/baumhoto/go-rampage/engine/input"
-	_map "github.com/baumhoto/go-rampage/engine/map"
 	"math"
+
+	"github.com/baumhoto/GoRampage/engine/asset"
+	_core "github.com/baumhoto/GoRampage/engine/core"
+	_input "github.com/baumhoto/GoRampage/engine/input"
+	_map "github.com/baumhoto/GoRampage/engine/map"
 )
 
 type PlayerState int

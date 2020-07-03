@@ -1,16 +1,17 @@
 package render
 
 import (
-	_asset "github.com/baumhoto/go-rampage/engine/asset"
-	_consts "github.com/baumhoto/go-rampage/engine/consts"
-	_core "github.com/baumhoto/go-rampage/engine/core"
-	_entity "github.com/baumhoto/go-rampage/engine/entity"
-	_map "github.com/baumhoto/go-rampage/engine/map"
-	"github.com/hajimehoshi/ebiten"
 	"math"
 	"math/rand"
 	"sort"
 	"time"
+
+	_asset "github.com/baumhoto/GoRampage/engine/asset"
+	_consts "github.com/baumhoto/GoRampage/engine/consts"
+	_core "github.com/baumhoto/GoRampage/engine/core"
+	_entity "github.com/baumhoto/GoRampage/engine/entity"
+	_map "github.com/baumhoto/GoRampage/engine/map"
+	"github.com/hajimehoshi/ebiten"
 )
 
 // Renderer renders to the window

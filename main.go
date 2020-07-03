@@ -1,17 +1,19 @@
 package main
 
 import (
-	_consts "github.com/baumhoto/go-rampage/engine/consts"
-	_entity "github.com/baumhoto/go-rampage/engine/entity"
-	_input "github.com/baumhoto/go-rampage/engine/input"
-	_render "github.com/baumhoto/go-rampage/engine/render"
-	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/inpututil"
+	"fmt"
 	_ "image/png"
 	"log"
 	"math"
 	"os"
 	"time"
+
+	_consts "github.com/baumhoto/GoRampage/engine/consts"
+	_entity "github.com/baumhoto/GoRampage/engine/entity"
+	_input "github.com/baumhoto/GoRampage/engine/input"
+	_render "github.com/baumhoto/GoRampage/engine/render"
+	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/inpututil"
 )
 
 type Game struct {
@@ -67,7 +69,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	if !lastTime.IsZero() {
 		lastFrameTime = time.Since(lastTime).Seconds()
-		//fmt.Printf("%v\n", lastFrameTime)
+		fmt.Printf("%v\n", lastFrameTime)
 	}
 	lastTime = time.Now()
 }

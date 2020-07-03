@@ -3,9 +3,10 @@ package _map
 import (
 	"encoding/json"
 	"fmt"
-	_core "github.com/baumhoto/go-rampage/engine/core"
 	"io/ioutil"
 	"math"
+
+	_core "github.com/baumhoto/GoRampage/engine/core"
 )
 
 type Tilemap struct {

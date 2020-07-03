@@ -1,11 +1,12 @@
 package render
 
 import (
-	_asset "github.com/baumhoto/go-rampage/engine/asset"
-	_core "github.com/baumhoto/go-rampage/engine/core"
-	"github.com/hajimehoshi/ebiten"
 	"image/color"
 	"math"
+
+	_asset "github.com/baumhoto/GoRampage/engine/asset"
+	_core "github.com/baumhoto/GoRampage/engine/core"
+	"github.com/hajimehoshi/ebiten"
 )
 
 // FrameBuffer stores the color for each pixel of the buffer

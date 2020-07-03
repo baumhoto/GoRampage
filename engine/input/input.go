@@ -1,11 +1,12 @@
 package input
 
 import (
-	_consts "github.com/baumhoto/go-rampage/engine/consts"
-	_core "github.com/baumhoto/go-rampage/engine/core"
-	"github.com/hajimehoshi/ebiten"
 	"math"
 	"time"
+
+	_consts "github.com/baumhoto/GoRampage/engine/consts"
+	_core "github.com/baumhoto/GoRampage/engine/core"
+	"github.com/hajimehoshi/ebiten"
 )
 
 var lastFiredTime time.Time

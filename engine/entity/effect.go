@@ -1,9 +1,10 @@
 package entity
 
 import (
-	_core "github.com/baumhoto/go-rampage/engine/core"
 	"image/color"
 	"math"
+
+	_core "github.com/baumhoto/GoRampage/engine/core"
 )
 
 type EffectType int

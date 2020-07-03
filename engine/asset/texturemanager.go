@@ -1,12 +1,13 @@
 package asset
 
 import (
-	_map "github.com/baumhoto/go-rampage/engine/map"
 	"image"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	_map "github.com/baumhoto/GoRampage/engine/map"
 )
 
 type TextureManager struct {

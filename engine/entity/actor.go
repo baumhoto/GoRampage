@@ -1,8 +1,8 @@
 package entity
 
 import (
-	_core "github.com/baumhoto/go-rampage/engine/core"
-	_map "github.com/baumhoto/go-rampage/engine/map"
+	_core "github.com/baumhoto/GoRampage/engine/core"
+	_map "github.com/baumhoto/GoRampage/engine/map"
 )
 
 type Actor interface {

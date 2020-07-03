@@ -2,9 +2,10 @@ package entity
 
 import (
 	"fmt"
-	_asset "github.com/baumhoto/go-rampage/engine/asset"
-	_core "github.com/baumhoto/go-rampage/engine/core"
-	_map "github.com/baumhoto/go-rampage/engine/map"
+
+	_asset "github.com/baumhoto/GoRampage/engine/asset"
+	_core "github.com/baumhoto/GoRampage/engine/core"
+	_map "github.com/baumhoto/GoRampage/engine/map"
 )
 
 type MonsterState int
