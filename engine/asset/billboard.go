@@ -14,10 +14,15 @@ type Billboard struct {
 	Texture   Texture
 }
 
-func NewBillBoard(start _core.Vector, direction _core.Vector, length float64, texture Texture) Billboard {
+func NewBillBoard(start _core.Vector, direction _core.Vector, length float64) Billboard {
 	end := _core.MultiplyVector(direction, length)
 	end.Add(start)
-	return Billboard{start, end, direction, length, texture}
+	return Billboard{
+		Start:     start,
+		End:       end,
+		direction: direction,
+		Length:    length,
+	}
 }
 
 func (b Billboard) HitTest(ray _core.Ray) _core.Vector {
@@ -39,7 +44,7 @@ func (b Billboard) HitTest(ray _core.Ray) _core.Vector {
 
 	// Check if slopes are parallel
 	if slope1 == slope2 {
-		return _core.Vector{}
+		return _core.NilVector()
 	}
 
 	// Find intersection point
@@ -49,12 +54,12 @@ func (b Billboard) HitTest(ray _core.Ray) _core.Vector {
 	// Check intersection point is in range
 	distanceAlongRay := (x - lhs.Origin.X) / lhs.Direction.X
 	if distanceAlongRay < 0 {
-		return _core.Vector{}
+		return _core.NilVector()
 	}
 
 	distanceAlongBillboard := (x - rhs.Origin.X) / rhs.Direction.X
 	if distanceAlongBillboard < 0 || distanceAlongBillboard > b.Length {
-		return _core.Vector{}
+		return _core.NilVector()
 	}
 
 	return _core.Vector{x, y}

@@ -34,6 +34,20 @@ func (v *Vector) Divide(divisor float64) *Vector {
 	return v
 }
 
+func (v Vector) IsNil() bool {
+	if v.X == math.MaxFloat64 && v.Y == math.MaxFloat64 {
+		return true
+	}
+	return false
+}
+
+func NilVector() Vector {
+	return Vector{
+		math.MaxFloat64,
+		math.MaxFloat64,
+	}
+}
+
 // rotated returns a new Vector with the rotation applied
 func (v Vector) Rotated(rotation Rotation) Vector {
 	return Vector{v.X*rotation.m1 + v.Y*rotation.m2,

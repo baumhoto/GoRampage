@@ -43,8 +43,11 @@ func (g *Game) Update(screen *ebiten.Image) error {
 		os.Exit(1)
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyP) {
+	if inpututil.IsKeyJustReleased(ebiten.KeyP) {
 		pause = !pause
+	}
+	if inpututil.IsKeyJustReleased(ebiten.KeyR) {
+		world.Reset()
 	}
 
 	if !pause {

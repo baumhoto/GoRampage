@@ -36,7 +36,7 @@ func NewPlayer(position _core.Vector) Player {
 	return Player{speed: 2, TurningSpeed: math.Pi, radius: 0.25, Position: position,
 		velocity: _core.Vector{0, 0}, Direction: _core.Vector{1, 0},
 		health: 100, state: playerStateIdle, Animation: asset.PistolIdleAnimation,
-		attackCooldown: 0.4}
+		attackCooldown: 0.25}
 }
 
 func (p Player) Rect() _core.Rect {
@@ -51,19 +51,35 @@ func (p Player) isDead() bool {
 	return p.health <= 0
 }
 
-func (p *Player) update(input _input.Input) {
+func (p Player) canFire() bool {
+	switch p.state {
+	case playerStateIdle:
+		return true
+	case playerStateFiring:
+		return p.AnimationTime >= p.attackCooldown
+	default:
+		return true
+	}
+}
+
+func (p *Player) update(world *World, input _input.Input) {
 	p.Direction = p.Direction.Rotated(input.Rotation)
 	p.velocity = _core.MultiplyVector(p.Direction, input.Speed*p.speed)
 
 	switch p.state {
 	case playerStateIdle:
-		if input.IsFiring {
+		if input.IsFiring && p.canFire() {
 			p.state = playerStateFiring
 			p.AnimationTime = 0.0
 			p.Animation = asset.PistolFireAnimation
+			ray := _core.Ray{p.Position, p.Direction}
+			hitIndex := world.hitTest(ray)
+			if hitIndex >= 0 {
+				world.hurtMonster(hitIndex, 10)
+			}
 		}
 	case playerStateFiring:
-		if p.AnimationTime >= p.attackCooldown {
+		if p.AnimationTime >= p.attackCooldown { // TODO if animation.isCompleted()
 			p.state = playerStateIdle
 			p.AnimationTime = 0.0
 			p.Animation = asset.PistolIdleAnimation

@@ -14,6 +14,8 @@ const (
 	MonsterStateIdle MonsterState = iota
 	MonsterStateChasing
 	MonsterStateScratching
+	MonsterStateHurt
+	MonsterStateDead
 )
 
 type Monster struct {
@@ -26,12 +28,17 @@ type Monster struct {
 	animationTime  float64
 	attackCoolDown float64
 	lastAttackTime float64
+	health         float64
 }
 
 func NewMonster(position _core.Vector) Monster {
 	return Monster{speed: 0.5, position: position, velocity: _core.Vector{0, 0},
 		radius: 0.4375, state: MonsterStateIdle, animation: _asset.MonsterIdleAnimation,
-		attackCoolDown: 0.4}
+		attackCoolDown: 0.4, health: 50}
+}
+
+func (m Monster) isDead() bool {
+	return m.health <= 0
 }
 
 func (m Monster) rect() _core.Rect {
@@ -65,7 +72,6 @@ func (m *Monster) update(world *World) {
 	case MonsterStateIdle:
 		if m.canSeePlayer(*world) {
 			m.state = MonsterStateChasing
-			m.velocity = _core.Vector{0, 0}
 			m.animation = _asset.MonsterWalkAnimation
 			m.animationTime = 0.0
 		}
@@ -74,12 +80,14 @@ func (m *Monster) update(world *World) {
 			m.state = MonsterStateIdle
 			m.animation = _asset.MonsterIdleAnimation
 			m.animationTime = 0.0
+			m.velocity = _core.Vector{0, 0}
 			break
 		}
 		if m.canReachPlayer(*world) {
 			m.state = MonsterStateScratching
 			m.animation = _asset.MonsterScratchAnimation
 			m.lastAttackTime = -m.attackCoolDown
+			m.velocity = _core.Vector{0, 0}
 		}
 		direction := _core.SubstractVectors(world.Player.Position, m.position)
 		m.velocity = *direction.Multiply(m.speed / direction.Length())
@@ -93,7 +101,36 @@ func (m *Monster) update(world *World) {
 			m.lastAttackTime = m.animationTime
 			world.hurtPlayer(10)
 		}
+	case MonsterStateHurt:
+		if m.animationTime >= 0.2 { // TODO remove hardcoded
+			m.state = MonsterStateIdle
+			m.animation = _asset.MonsterIdleAnimation
+			m.animationTime = 0.0
+		}
+	case MonsterStateDead:
+		if m.animationTime >= 0.5 { // TODO remove hardcoded
+			m.animationTime = 0.0
+			m.animation = _asset.AnimationMonsterDead
+		}
 	default:
 		fmt.Printf("default\n")
 	}
+}
+
+func (m Monster) billboard(ray _core.Ray) _asset.Billboard {
+	plane := ray.Direction.Orthogonal()
+	return _asset.NewBillBoard(
+		_core.SubstractVectors(m.position, _core.DivideVector(plane, 2)),
+		plane,
+		1.0)
+}
+
+func (m Monster) hitTest(ray _core.Ray) _core.Vector {
+	hit := m.billboard(ray).HitTest(ray)
+	if !m.isDead() && !hit.IsNil() {
+		if _core.SubstractVectors(hit, m.position).Length() >= m.radius {
+			hit = _core.NilVector()
+		}
+	}
+	return hit
 }

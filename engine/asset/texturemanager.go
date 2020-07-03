@@ -54,7 +54,7 @@ func (tm TextureManager) GetTextureByKey(key string) Texture {
 }
 
 func (tm *TextureManager) initAnimations() {
-	tm.Animations = make(map[string]Animation, 4)
+	tm.Animations = make(map[string]Animation, 7)
 	tm.Animations[MonsterIdleAnimation] = Animation{
 		frames:   []Texture{tm.textures[MonsterIdleTexture]},
 		duration: 0,
@@ -81,6 +81,29 @@ func (tm *TextureManager) initAnimations() {
 			tm.textures[MonsterScratchTexture8],
 		},
 		duration: 0.8,
+	}
+
+	tm.Animations[AnimationMonsterHurt] = Animation{
+		frames: [] Texture{
+			tm.textures[TextureMonsterHurt],
+		},
+		duration: 0.2,
+	}
+
+	tm.Animations[AnimationMonsterDeath] = Animation{
+		frames: [] Texture{
+			tm.textures[TextureMonsterHurt],
+			tm.textures[TextureMonsterDeath1],
+			tm.textures[TextureMonsterDeath2],
+		},
+		duration: 0.5,
+	}
+
+	tm.Animations[AnimationMonsterDead] = Animation{
+		frames: [] Texture{
+			tm.textures[TextureMonsterDead],
+		},
+		duration: 0.0,
 	}
 
 	tm.Animations[PistolIdleAnimation] = Animation{

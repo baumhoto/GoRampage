@@ -22,7 +22,7 @@ type World struct {
 func NewWorld() World {
 	var player Player
 	world := World{_map.LoadMap(), player, nil, nil}
-	world.reset()
+	world.Reset()
 	return world
 }
 
@@ -42,11 +42,11 @@ func (w *World) Update(timeStep float64, input _input.Input) {
 	// update player
 	if !w.Player.isDead() {
 		w.Player.AnimationTime += timeStep
-		w.Player.update(input)
+		w.Player.update(w, input)
 		w.Player.velocity.Multiply(timeStep)
 		w.Player.Position.Add(w.Player.velocity)
 	} else if len(w.Effects) == 0 {
-		w.reset()
+		w.Reset()
 		w.Effects = append(w.Effects, NewEffect(FadeIn, _consts.RED, 0.5))
 		return
 	}
@@ -54,14 +54,17 @@ func (w *World) Update(timeStep float64, input _input.Input) {
 	// update monsters
 	for i, _ := range w.Monsters {
 		monster := w.Monsters[i]
+		monster.animationTime += timeStep
 		monster.update(w)
 		monster.position.Add(_core.MultiplyVector(monster.velocity, timeStep))
-		monster.animationTime += timeStep
 		w.Monsters[i] = monster
 	}
 
 	// handle collisions
 	for i, _ := range w.Monsters {
+		if w.Monsters[i].isDead() {
+			continue
+		}
 		// monster player
 		if success, intersection := w.Player.Rect().Intersection(w.Monsters[i].rect()); success {
 			intersection.Divide(2)
@@ -99,13 +102,15 @@ func (w *World) Update(timeStep float64, input _input.Input) {
 }
 
 func (w World) Sprites(tm _asset.TextureManager) []_asset.Billboard {
-	spritePlane := w.Player.Direction.Orthogonal()
+	ray := _core.Ray{
+		Origin:    w.Player.Position,
+		Direction: w.Player.Direction,
+	}
 	var result []_asset.Billboard
 	for _, monster := range w.Monsters {
-		start := _core.DivideVector(spritePlane, 2)
-		start = _core.SubstractVectors(monster.position, start)
-		result = append(result, _asset.NewBillBoard(start, spritePlane, 1,
-			tm.Animations[monster.animation].Texture(monster.animationTime)))
+		billboard := monster.billboard(ray)
+		billboard.Texture = tm.Animations[monster.animation].Texture(monster.animationTime)
+		result = append(result, billboard)
 	}
 	return result
 }
@@ -115,6 +120,7 @@ func (w *World) hurtPlayer(damage float64) {
 		return
 	}
 	w.Player.health -= damage
+	w.Player.velocity = _core.Vector{0.0, 0.0}
 	w.Effects = append(w.Effects, NewEffect(FadeIn, color.RGBA{
 		R: 255,
 		G: 0,
@@ -127,7 +133,25 @@ func (w *World) hurtPlayer(damage float64) {
 	}
 }
 
-func (w *World) reset() {
+func (w *World) hurtMonster(index int, damage float64) {
+	monster := w.Monsters[index]
+	if monster.isDead() {
+		return
+	}
+	monster.health -= damage
+	monster.velocity = _core.Vector{0.0, 0.0}
+	if monster.isDead() {
+		monster.state = MonsterStateDead
+		monster.animation = _asset.AnimationMonsterDeath
+	} else {
+		monster.state = MonsterStateHurt
+		monster.animation = _asset.AnimationMonsterHurt
+	}
+	w.Monsters[index] = monster
+	//fmt.Printf("%v %v\n", index, w.Monsters[index].health)
+}
+
+func (w *World) Reset() {
 	w.Monsters = w.Monsters[:0]
 	w.Effects = w.Effects[:0]
 	for y := 0; y < w.Worldmap.Height; y++ {
@@ -146,4 +170,24 @@ func (w *World) reset() {
 			}
 		}
 	}
+}
+
+func (w World) hitTest(ray _core.Ray) int {
+	wallHit := w.Worldmap.HitTest(ray)
+	distance := _core.SubstractVectors(wallHit, ray.Origin).Length()
+	result := -1
+	for i, monster := range w.Monsters {
+		monsterHit := monster.hitTest(ray)
+		if monsterHit.IsNil() {
+			continue
+		}
+		hitDistance := _core.SubstractVectors(monsterHit, ray.Origin).Length()
+		if hitDistance >= distance {
+			continue
+		}
+		result = i
+		distance = hitDistance
+	}
+
+	return result
 }

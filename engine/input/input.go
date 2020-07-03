@@ -21,14 +21,14 @@ func GetInput(playerTurningSpeed float64, lastFrameTime float64) Input {
 	inputVector := _core.Vector{}
 	velocity := float64(1)
 
-	if ebiten.IsKeyPressed(ebiten.KeyDown) {
+	if ebiten.IsKeyPressed(ebiten.KeyDown) || ebiten.IsKeyPressed(ebiten.KeyS) {
 		inputVector.Y = velocity
-	} else if ebiten.IsKeyPressed(ebiten.KeyUp) {
+	} else if ebiten.IsKeyPressed(ebiten.KeyUp) || ebiten.IsKeyPressed(ebiten.KeyW) {
 		inputVector.Y = velocity * -1
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
+	if ebiten.IsKeyPressed(ebiten.KeyLeft) || ebiten.IsKeyPressed(ebiten.KeyA) {
 		inputVector.X = velocity * -1
-	} else if ebiten.IsKeyPressed(ebiten.KeyRight) {
+	} else if ebiten.IsKeyPressed(ebiten.KeyRight) || ebiten.IsKeyPressed(ebiten.KeyD) {
 		inputVector.X = velocity
 	}
 
@@ -38,7 +38,7 @@ func GetInput(playerTurningSpeed float64, lastFrameTime float64) Input {
 		if !lastFiredTime.IsZero() {
 			test := time.Since(lastFiredTime)
 			if test.Seconds() > lastFrameTime {
-				//ßfmt.Printf("%v %v\n", test.Seconds(), lastFrameTime)
+				//fmt.Printf("%v %v\n", test.Seconds(), lastFrameTime)
 				fire = true
 			}
 		} else {

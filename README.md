@@ -19,3 +19,12 @@ Switched to ebiten https://github.com/hajimehoshi/ebiten as it allows to more cl
 * `go build`
 
 * `./GoRampage`
+
+## Controls
+
+ESC - Quit
+P   - Pause
+R   - Reset Level
+Arrow-Keys - Movement
+WSAD - Movement
+SPACE - Fire

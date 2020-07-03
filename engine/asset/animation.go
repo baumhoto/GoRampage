@@ -13,6 +13,9 @@ const (
 	MonsterIdleAnimation    = "monsterIdle"
 	MonsterWalkAnimation    = "monsterWalk"
 	MonsterScratchAnimation = "monsterScratch"
+	AnimationMonsterHurt = "monsterHurt"
+	AnimationMonsterDeath = "monsterDeath"
+	AnimationMonsterDead = "monsterDead"
 	PistolIdleAnimation     = "pistolIdle"
 	PistolFireAnimation     = "pistolFire"
 )
@@ -24,3 +27,8 @@ func (a Animation) Texture(time float64) Texture {
 	t := math.Mod(time, a.duration) / a.duration
 	return a.frames[int(float64(len(a.frames))*t)]
 }
+
+func (a Animation) isCompleted(animationTime float64) bool {
+	return animationTime >= a.duration
+}
+
