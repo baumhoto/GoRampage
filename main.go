@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	_ "image/png"
 	"log"
 	"math"
@@ -69,7 +68,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	if !lastTime.IsZero() {
 		lastFrameTime = time.Since(lastTime).Seconds()
-		fmt.Printf("%v\n", lastFrameTime)
+		//fmt.Printf("%v\n", lastFrameTime)
 	}
 	lastTime = time.Now()
 }

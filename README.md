@@ -12,11 +12,9 @@ Switched to ebiten https://github.com/hajimehoshi/ebiten as it allows to more cl
 
 ## Installation
 
-* `git clone https://github.com/baumhoto/GoRampage.git`
+* `go get github.com/baumhoto/GoRampage`
 
-* `go get github.com/hajimehoshi/ebiten/...`
-
-* `cd GoRampage`
+* `cd {YOUR_GO_PATH}/src/github.com/baumhoto/GoRampage`
 
 * `go build`
 
