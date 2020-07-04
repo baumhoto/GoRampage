@@ -17,6 +17,7 @@ type Texture struct {
 	name     string
 	category int
 	Image    image.Image
+	IsOpaque bool
 }
 
 func (t Texture) GetColorAt(x, y int) color.Color {

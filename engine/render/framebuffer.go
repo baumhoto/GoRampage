@@ -52,11 +52,21 @@ func (fb *FrameBuffer) drawColumn(sourceX int, source _asset.Texture, atPoint _c
 	end := int(math.Ceil(atPoint.Y + height))
 
 	stepY := float64(source.Image.Bounds().Size().Y) / height
-	for y := math.Max(0.0, float64(start)); y < math.Min(float64(windowHeight), float64(end)); y++ {
-		sourceY := math.Max(0, y-atPoint.Y) * stepY
-		sourceColor := source.GetColorAt(sourceX, int(sourceY))
-		fb.blendPixel(int(atPoint.X), int(y), sourceColor)
+	if source.IsOpaque {
+		for y := math.Max(0.0, float64(start)); y < math.Min(float64(windowHeight), float64(end)); y++ {
+			sourceY := math.Max(0, y-atPoint.Y) * stepY
+			sourceColor := source.GetColorAt(sourceX, int(sourceY))
+			fb.SetColorAt(int(atPoint.X), int(y), sourceColor)
+		}
+	} else {
+		for y := math.Max(0.0, float64(start)); y < math.Min(float64(windowHeight), float64(end)); y++ {
+			sourceY := math.Max(0, y-atPoint.Y) * stepY
+			sourceColor := source.GetColorAt(sourceX, int(sourceY))
+			fb.blendPixel(int(atPoint.X), int(y), sourceColor)
+		}
 	}
+
+
 }
 
 func (fb *FrameBuffer) drawImage(source _asset.Texture, at, size _core.Vector) {
@@ -108,15 +118,23 @@ func (fb *FrameBuffer) ToImage() *ebiten.Image {
 	return fb.img
 }
 func (fb *FrameBuffer) blendPixel(x, y int, newColor color.Color) {
-	oldR, oldG, oldB, _ := fb.ColorAt(x, y).RGBA()
 	newR, newG, newB, newA := newColor.RGBA()
-	inverseAlpha := 1.0 - float64(uint8(newA))/255.0
-	fb.SetColorAt(x, y, color.RGBA{
-		R: uint8(float64(uint8(oldR))*inverseAlpha) + uint8(newR),
-		G: uint8(float64(uint8(oldG))*inverseAlpha) + uint8(newG),
-		B: uint8(float64(uint8(oldB))*inverseAlpha) + uint8(newB),
-		A: uint8(255),
-	})
+	switch uint8(newA) {
+	case 0:
+		return
+	case 255:
+		fb.SetColorAt(x, y, newColor)
+	default:
+		oldR, oldG, oldB, _ := fb.ColorAt(x, y).RGBA()
+		inverseAlpha := 1.0 - float64(uint8(newA))/255.0
+		fb.SetColorAt(x, y, color.RGBA{
+			R: uint8(float64(uint8(oldR))*inverseAlpha) + uint8(newR),
+			G: uint8(float64(uint8(oldG))*inverseAlpha) + uint8(newG),
+			B: uint8(float64(uint8(oldB))*inverseAlpha) + uint8(newB),
+			A: uint8(255),
+		})
+	}
+
 }
 
 func (fb *FrameBuffer) tint(tintColor color.Color, opacity float64) {

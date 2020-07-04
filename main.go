@@ -1,11 +1,15 @@
 package main
 
 import (
+	"errors"
+	"flag"
+	"fmt"
 	_asset "github.com/baumhoto/GoRampage/engine/asset"
 	_ "image/png"
 	"log"
 	"math"
 	"os"
+	"runtime/pprof"
 	"time"
 
 	_consts "github.com/baumhoto/GoRampage/engine/consts"
@@ -26,16 +30,50 @@ var fullScreen bool
 var pause bool
 var lastFrameTime float64
 var lastTime time.Time
+var count = 0
+var profile = false
+var lastStatsTime = time.Now()
+var showFps = false
+var fixedUpdateCyclesCount = 0
 
 func main() {
+
+	var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
+	var fps = flag.Int("showFps", 0, "Show FPS stats `int`")
+	var updateCycles = flag.Int("fixedUpdateCycles", 0, "Set the number of update cycles after which program execution ends.")
+
+	flag.Parse()
+
+	if *fps == 1 {
+		showFps = true
+	}
+
+	if *updateCycles > 0 {
+		fixedUpdateCyclesCount = *updateCycles
+	}
+
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal("could not create CPU profile: ", err)
+		}
+		defer f.Close() // error handling omitted for example
+		profile = true
+		if err := pprof.StartCPUProfile(f); err != nil {
+			log.Fatal("could not start CPU profile: ", err)
+		}
+		defer pprof.StopCPUProfile()
+	}
+
 	world = _entity.NewWorld()
 	renderer = _render.NewRenderer()
 	textureManger = _asset.NewTextureManager()
 	game := &Game{}
 	ebiten.SetWindowSize(_consts.SCREEN_WIDTH*_consts.SCREEN_SCALE, _consts.SCREEN_HEIGHT*_consts.SCREEN_SCALE)
 	ebiten.SetWindowTitle("GoRampage")
+	//ebiten.SetVsyncEnabled(true)
 	if err := ebiten.RunGame(game); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 }
 
@@ -60,6 +98,13 @@ func (g *Game) Update(screen *ebiten.Image) error {
 		}
 	}
 
+	if fixedUpdateCyclesCount > 0 {
+		count++
+		if count >= fixedUpdateCyclesCount {
+			return errors.New("fixed update cycles reached. Exiting", )
+		}
+	}
+
 	return nil
 }
 
@@ -74,7 +119,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	if !lastTime.IsZero() {
 		lastFrameTime = time.Since(lastTime).Seconds()
-		//fmt.Printf("%v\n", lastFrameTime)
+		if showFps && time.Since(lastStatsTime).Seconds() >= 3 {
+			fmt.Printf("%v %v\n", lastFrameTime, ebiten.CurrentFPS())
+			lastStatsTime = time.Now()
+		}
 	}
 	lastTime = time.Now()
 }

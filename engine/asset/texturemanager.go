@@ -26,6 +26,7 @@ func (tm TextureManager) GetWallTextureByTile(tile _map.Tile, isVertical bool) T
 	if isVertical {
 		searchId = searchId + "v"
 	}
+
 	return tm.textures[searchId]
 }
 
@@ -153,15 +154,19 @@ func loadTextures() map[string]Texture {
 		textureNameParts := strings.Split(textureNameString, "_")
 		textureName := textureNameParts[1]
 		textureId := textureNameParts[0]
+		_,_,_, a := img.At(0, 0).RGBA()
 
 		if img != nil {
 			texture := Texture{
 				name:     textureName,
 				category: GetTextureCategory(textureName),
 				Image:    img,
+				IsOpaque: uint8(a) == 255, // TODO not the best way to check
 			}
 			textures[textureId] = texture
 		}
+
+		//fmt.Printf("%v %v\n", textureName, uint8(a) ==255)
 	}
 
 	return textures
